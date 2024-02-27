@@ -3,3 +3,5 @@ Dockerfile
 README.md
 .venv/
 __pycache__/
+*.egg-info
+.gitignore

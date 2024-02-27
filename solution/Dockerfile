@@ -2,12 +2,15 @@ FROM python:3.12.2-alpine3.19
 
 WORKDIR /app
 
-COPY requirements.txt requirements.txt
-RUN pip3 install -r requirements.txt
+RUN python -m venv ./venv
 
-COPY . .
-RUN pip3 install -e .
+COPY requirements.txt .
+RUN ./venv/bin/pip install -r requirements.txt
+
+COPY pyproject.toml .
+COPY src src
+RUN ./venv/bin/pip install .
 
 ENV SERVER_ADDRESS=0.0.0.0:8080
 
-CMD ["sh", "-c", "exec python3 -m gunicorn --bind=$SERVER_ADDRESS 'pulse_backend:create_app()'"]
+CMD exec ./venv/bin/gunicorn -b=$SERVER_ADDRESS 'pulse_backend:create_app()'

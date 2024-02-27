@@ -9,4 +9,4 @@ COPY . .
 
 ENV SERVER_ADDRESS=0.0.0.0:8080
 
-CMD ["sh", "-c", "exec python3 -m gunicorn --bind=$SERVER_ADDRESS app:app"]
+CMD ["sh", "-c", "exec python3 -m gunicorn --bind=$SERVER_ADDRESS 'app:create_app()'"]

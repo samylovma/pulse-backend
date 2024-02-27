@@ -1,4 +1,4 @@
-FROM python:3.12.1-alpine3.19
+FROM python:3.12.2-alpine3.19
 
 WORKDIR /app
 
@@ -7,6 +7,6 @@ RUN pip3 install -r requirements.txt
 
 COPY . .
 
-ENV SERVER_PORT=8080
+ENV SERVER_ADDRESS=0.0.0.0:8080
 
-CMD ["sh", "-c", "exec python3 -m flask run --host=0.0.0.0 --port=$SERVER_PORT"]
+CMD ["sh", "-c", "exec python3 -m gunicorn --bind=$SERVER_ADDRESS app:app"]

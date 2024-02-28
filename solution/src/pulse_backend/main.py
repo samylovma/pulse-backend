@@ -2,6 +2,7 @@ from os import getenv
 from typing import Literal
 
 import pydantic
+from advanced_alchemy.filters import CollectionFilter, FilterTypes, OrderBy
 from litestar import Litestar, MediaType, Response, Router, get, status_codes
 from litestar.contrib.sqlalchemy.base import CommonTableAttributes
 from litestar.contrib.sqlalchemy.plugins import (
@@ -65,14 +66,13 @@ class CountryController(Controller):
     async def list_countries(
         self, country_repo: CountryRepository, region: list[str] | None = None
     ) -> list[Country]:
-        if region is None:
-            countries = await country_repo.list()
-        else:
-            countries = await country_repo.list(
-                statement=country_repo.statement.where(
-                    country_repo.model_type.region.in_(region)
-                )
+        filters: list[FilterTypes] = []
+        filters.append(OrderBy(field_name="alpha2", sort_order="asc"))
+        if region:
+            filters.append(
+                CollectionFilter(field_name="region", values=region)
             )
+        countries = await country_repo.list(*filters)
         return [Country.model_validate(country) for country in countries]
 
     @get(
@@ -87,7 +87,7 @@ class CountryController(Controller):
         self, country_repo: CountryRepository, alpha2: str
     ) -> Country | Response[ErrorResponse]:
         country = await country_repo.get_one_or_none(alpha2=alpha2)
-        if country is not None:
+        if isinstance(country, CountryModel):
             return Country.model_validate(country)
         else:
             return Response(

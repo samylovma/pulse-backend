@@ -13,4 +13,4 @@ RUN ./venv/bin/pip install --no-deps .
 
 ENV SERVER_PORT=8080
 
-CMD exec ./venv/bin/litestar --app=pulse_backend:create_app run --port $SERVER_PORT --host 0.0.0.0
+CMD exec ./venv/bin/litestar --app=pulse_backend:create_app run --port=$SERVER_PORT --host=0.0.0.0

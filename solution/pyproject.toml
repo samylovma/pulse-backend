@@ -1,3 +1,14 @@
+[project]
+name = "pulse-backend"
+version = "0.1.0"
+dependencies = [
+    "litestar[jwt,sqlalchemy,standard]",
+    "asyncpg",
+]
+
+[tool.pip-tools]
+generate-hashes = true
+
 [tool.ruff]
 line-length = 79
 target-version = "py312"

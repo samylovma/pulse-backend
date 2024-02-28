@@ -5,12 +5,12 @@ WORKDIR /app
 RUN python -m venv ./venv
 
 COPY requirements.txt .
-RUN ./venv/bin/pip install -r requirements.txt
+RUN ./venv/bin/pip install --require-hashes --requirement requirements.txt
 
 COPY pyproject.toml .
 COPY src src
-RUN ./venv/bin/pip install .
+RUN ./venv/bin/pip install --no-deps .
 
-ENV SERVER_ADDRESS=0.0.0.0:8080
+ENV SERVER_PORT=8080
 
-CMD exec ./venv/bin/gunicorn -b=$SERVER_ADDRESS 'pulse_backend:create_app()'
+CMD exec ./venv/bin/litestar --app=pulse_backend:create_app run --port $SERVER_PORT --host 0.0.0.0

@@ -1,4 +1,4 @@
-from typing import Annotated
+import enum
 
 from litestar.contrib.sqlalchemy.base import CommonTableAttributes
 from litestar.contrib.sqlalchemy.dto import SQLAlchemyDTO, SQLAlchemyDTOConfig
@@ -25,13 +25,19 @@ class CountryRepository(SQLAlchemyAsyncRepository[Country]):
     model_type = Country
 
 
-CountryDTO = SQLAlchemyDTO[
-    Annotated[
-        Country,
-        SQLAlchemyDTOConfig(
-            exclude={
-                "id",
-            }
-        ),
-    ]
-]
+class RegionEnum(enum.StrEnum):
+    europe = "Europe"
+    africa = "Africa"
+    americas = "Americas"
+    oceania = "Oceania"
+    asia = "Asia"
+
+
+class CountryDTO(SQLAlchemyDTO[Country]):
+    config = SQLAlchemyDTOConfig(
+        exclude={
+            "id",
+        }
+    )
+
+    region: RegionEnum

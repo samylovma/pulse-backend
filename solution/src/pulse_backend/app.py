@@ -1,18 +1,33 @@
 from os import getenv
+from typing import Any
 
-from litestar import Litestar
+from litestar import Litestar, Request, Response, status_codes
 from litestar.contrib.sqlalchemy.plugins import (
     SQLAlchemyAsyncConfig,
     SQLAlchemyPlugin,
 )
+from litestar.exceptions import LitestarException
 from sqlalchemy import URL
 
 from pulse_backend.controllers import create_router
+from pulse_backend.domain.base import ErrorResponse
+
+
+def exc_handler(
+    _: Request[Any, Any, Any], exc: LitestarException
+) -> Response[ErrorResponse]:
+    return Response(
+        ErrorResponse(exc.detail),
+        status_code=getattr(
+            exc, "status_code", status_codes.HTTP_500_INTERNAL_SERVER_ERROR
+        ),
+    )
 
 
 def create_app() -> Litestar:
     return Litestar(
         route_handlers=(create_router(),),
+        exception_handlers={LitestarException: exc_handler},
         plugins=(
             SQLAlchemyPlugin(
                 config=SQLAlchemyAsyncConfig(

@@ -1,3 +1,5 @@
+import advanced_alchemy
+import litestar
 from advanced_alchemy.filters import CollectionFilter, FilterTypes, OrderBy
 from litestar import Controller, get
 from litestar.di import Provide
@@ -7,6 +9,7 @@ from pulse_backend.domain.country import (
     Country,
     CountryDTO,
     CountryRepository,
+    RegionEnum,
 )
 
 
@@ -21,7 +24,9 @@ class CountryController(Controller):
 
     @get()
     async def list_countries(
-        self, country_repo: CountryRepository, region: list[str] | None = None
+        self,
+        country_repo: CountryRepository,
+        region: list[RegionEnum] | None = None,
     ) -> list[Country]:
         filters: list[FilterTypes] = []
         filters.append(OrderBy(field_name="alpha2", sort_order="asc"))
@@ -35,4 +40,7 @@ class CountryController(Controller):
     async def get_country(
         self, country_repo: CountryRepository, alpha2: str
     ) -> Country:
-        return await country_repo.get_one(alpha2=alpha2)
+        try:
+            return await country_repo.get_one(alpha2=alpha2)
+        except advanced_alchemy.exceptions.NotFoundError as e:
+            raise litestar.exceptions.NotFoundException() from e

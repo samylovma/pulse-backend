@@ -26,5 +26,12 @@ class CountryRepository(SQLAlchemyAsyncRepository[Country]):
 
 
 CountryDTO = SQLAlchemyDTO[
-    Annotated[Country, SQLAlchemyDTOConfig(exclude=set("id"))]
+    Annotated[
+        Country,
+        SQLAlchemyDTOConfig(
+            exclude={
+                "id",
+            }
+        ),
+    ]
 ]

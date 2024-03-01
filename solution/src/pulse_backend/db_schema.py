@@ -1,6 +1,6 @@
 from advanced_alchemy.base import CommonTableAttributes
 from sqlalchemy import TEXT, ForeignKey, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -25,7 +25,5 @@ class User(CommonTableAttributes, Base):
     password: Mapped[bytes]
     country_code: Mapped[str] = mapped_column(ForeignKey(Country.alpha2))
     is_public: Mapped[bool]
-    phone: Mapped[str | None] = mapped_column(String(20))
+    phone: Mapped[str | None] = mapped_column(String(20), unique=True)
     image: Mapped[str | None] = mapped_column(String(200))
-
-    country: Mapped[Country] = relationship()

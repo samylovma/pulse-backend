@@ -4,6 +4,7 @@ version = "0.1.0"
 dependencies = [
     "litestar[pydantic,jwt,sqlalchemy,standard]",
     "asyncpg",
+    "bcrypt",
 ]
 
 [tool.pip-tools]

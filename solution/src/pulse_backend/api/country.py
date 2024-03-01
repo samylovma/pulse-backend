@@ -1,18 +1,34 @@
+import enum
 from collections.abc import Sequence
 
 import advanced_alchemy
 import litestar
 from advanced_alchemy.filters import CollectionFilter, FilterTypes, OrderBy
 from litestar import Controller, get
+from litestar.contrib.sqlalchemy.dto import SQLAlchemyDTO, SQLAlchemyDTOConfig
 from litestar.di import Provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from pulse_backend.country import (
-    CountryService,
-    ReadDTO,
-    RegionEnum,
-)
 from pulse_backend.db_schema import Country
+from pulse_backend.services import CountryService
+
+
+class RegionEnum(enum.StrEnum):
+    europe = "Europe"
+    africa = "Africa"
+    americas = "Americas"
+    oceania = "Oceania"
+    asia = "Asia"
+
+
+class ReadDTO(SQLAlchemyDTO[Country]):
+    config = SQLAlchemyDTOConfig(
+        exclude={
+            "id",
+        }
+    )
+
+    region: RegionEnum
 
 
 async def provide_country_service(db_session: AsyncSession) -> CountryService:

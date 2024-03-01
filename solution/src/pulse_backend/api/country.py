@@ -5,12 +5,12 @@ from litestar import Controller, get
 from litestar.di import Provide
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from pulse_backend.domain.country import (
-    Country,
-    CountryDTO,
+from pulse_backend.country import (
     CountryRepository,
+    ReadDTO,
     RegionEnum,
 )
+from pulse_backend.db_schema import Country
 
 
 async def provide_country_repo(db_session: AsyncSession) -> CountryRepository:
@@ -20,7 +20,7 @@ async def provide_country_repo(db_session: AsyncSession) -> CountryRepository:
 class CountryController(Controller):
     path = "/countries"
     dependencies = {"country_repo": Provide(provide_country_repo)}
-    return_dto = CountryDTO
+    return_dto = ReadDTO
 
     @get()
     async def list_countries(

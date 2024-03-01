@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from os import getenv
 from typing import Any
 
@@ -9,8 +10,12 @@ from litestar.contrib.sqlalchemy.plugins import (
 from litestar.exceptions import LitestarException
 from sqlalchemy import URL
 
-from pulse_backend.controllers import create_router
-from pulse_backend.domain.base import ErrorResponse
+from pulse_backend.api import create_router
+
+
+@dataclass(frozen=True, slots=True)
+class ErrorResponse:
+    reason: str
 
 
 def exc_handler(

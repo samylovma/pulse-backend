@@ -1,18 +1,18 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Annotated, Any
+from typing import Any
 
 import bcrypt
 import pydantic
 from advanced_alchemy.exceptions import IntegrityError, NotFoundError
 from litestar import Controller, post, status_codes
-from litestar.contrib.sqlalchemy.dto import SQLAlchemyDTO, SQLAlchemyDTOConfig
 from litestar.di import Provide
 from litestar.exceptions import ClientException, NotAuthorizedException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from pulse_backend.db_schema import User
 from pulse_backend.jwt import jwt_auth
+from pulse_backend.schemas import UserProfile
 from pulse_backend.services import UserService
 
 
@@ -37,29 +37,6 @@ class SignIn:
 @dataclass(frozen=True, slots=True)
 class SuccessSignIn:
     token: str
-
-
-ReadDTO = SQLAlchemyDTO[
-    Annotated[
-        User,
-        SQLAlchemyDTOConfig(
-            exclude={
-                "hashed_password",
-            }
-        ),
-    ]
-]
-
-
-class UserProfile(pydantic.BaseModel):
-    model_config = pydantic.ConfigDict(from_attributes=True)
-
-    login: str
-    email: str
-    country_code: str = pydantic.Field(serialization_alias="countryCode")
-    is_public: bool = pydantic.Field(serialization_alias="isPublic")
-    phone: str | None
-    image: str | None
 
 
 async def provide_user_service(db_session: AsyncSession) -> UserService:

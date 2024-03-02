@@ -1,3 +1,6 @@
+from typing import Any
+
+import bcrypt
 from advanced_alchemy import SQLAlchemyAsyncRepositoryService
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 
@@ -18,3 +21,14 @@ class UserRepository(SQLAlchemyAsyncRepository[User]):
 
 class UserService(SQLAlchemyAsyncRepositoryService[User]):
     repository_type = UserRepository
+
+    async def to_model(
+        self, data: User | dict[str, Any], operation: str | None = None
+    ) -> User:
+        if isinstance(data, dict):
+            password: str | None = data.pop("password", None)
+            if password is not None:
+                data["hashed_password"] = bcrypt.hashpw(
+                    password.encode(encoding="utf-8"), bcrypt.gensalt()
+                )
+        return await super().to_model(data, operation)

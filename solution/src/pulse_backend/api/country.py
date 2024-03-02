@@ -1,6 +1,5 @@
 import enum
 from collections.abc import Sequence
-from typing import ClassVar
 
 import advanced_alchemy
 import litestar
@@ -38,9 +37,7 @@ async def provide_country_service(db_session: AsyncSession) -> CountryService:
 
 class CountryController(Controller):
     path = "/countries"
-    dependencies: ClassVar = {
-        "country_service": Provide(provide_country_service)
-    }
+    dependencies = {"country_service": Provide(provide_country_service)}  # noqa: RUF012
     return_dto = ReadDTO
 
     @get()

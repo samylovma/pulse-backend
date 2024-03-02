@@ -12,7 +12,7 @@ class Country(CommonTableAttributes, Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(TEXT())
-    alpha2: Mapped[str] = mapped_column(TEXT(), unique=True)
+    alpha2: Mapped[str] = mapped_column(TEXT())
     alpha3: Mapped[str] = mapped_column(TEXT())
     region: Mapped[str] = mapped_column(TEXT())
 
@@ -22,7 +22,7 @@ class User(CommonTableAttributes, Base):
         String(30), primary_key=True, unique=True
     )
     email: Mapped[str] = mapped_column(String(50), unique=True)
-    password: Mapped[bytes]
+    hashed_password: Mapped[bytes]
     country_code: Mapped[str] = mapped_column(String(2))
     is_public: Mapped[bool]
     phone: Mapped[str | None] = mapped_column(String(20), unique=True)

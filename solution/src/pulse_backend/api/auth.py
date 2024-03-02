@@ -1,13 +1,14 @@
+from dataclasses import dataclass
 from datetime import timedelta
-from typing import Annotated, ClassVar
+from typing import Annotated
 
 import bcrypt
 import pydantic
-from advanced_alchemy.exceptions import NotFoundError
+from advanced_alchemy.exceptions import IntegrityError, NotFoundError
 from litestar import Controller, post, status_codes
 from litestar.contrib.sqlalchemy.dto import SQLAlchemyDTO, SQLAlchemyDTOConfig
 from litestar.di import Provide
-from litestar.exceptions import NotAuthorizedException
+from litestar.exceptions import ClientException, NotAuthorizedException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from pulse_backend.db_schema import User
@@ -18,7 +19,7 @@ from pulse_backend.services import UserService
 class Register(pydantic.BaseModel):
     login: str
     email: str
-    password: bytes
+    password: str
     country_code: str = pydantic.Field(alias="countryCode")
     is_public: bool = pydantic.Field(alias="isPublic")
     phone: str | None = None
@@ -27,12 +28,14 @@ class Register(pydantic.BaseModel):
     # TODO: Validate.
 
 
-class SignIn(pydantic.BaseModel):
+@dataclass(frozen=True, slots=True)
+class SignIn:
     login: str
-    password: bytes
+    password: str
 
 
-class SuccessSignIn(pydantic.BaseModel):
+@dataclass(frozen=True, slots=True)
+class SuccessSignIn:
     token: str
 
 
@@ -41,7 +44,7 @@ ReadDTO = SQLAlchemyDTO[
         User,
         SQLAlchemyDTOConfig(
             exclude={
-                "password",
+                "hashed_password",
             }
         ),
     ]
@@ -54,15 +57,24 @@ async def provide_user_service(db_session: AsyncSession) -> UserService:
 
 class AuthController(Controller):
     path = "/auth"
-    dependencies: ClassVar = {"user_service": Provide(provide_user_service)}
+    dependencies = {"user_service": Provide(provide_user_service)}  # noqa: RUF012
 
     @post("/register", return_dto=ReadDTO)
     async def register(
         self, data: Register, user_service: UserService
     ) -> User:
-        data.password = bcrypt.hashpw(data.password, bcrypt.gensalt())
-        return await user_service.create(data.model_dump(), auto_commit=True)
+        try:
+            return await user_service.create(
+                data.model_dump(), auto_commit=True
+            )
+        # FIXME: IntegrityError can be raised not only for the error of
+        # uniqueness data.
+        except IntegrityError as e:
+            raise ClientException(
+                status_code=status_codes.HTTP_409_CONFLICT
+            ) from e
 
+    # TODO: Refactor the method. Move logic to UserService.
     @post("/sign-in", status_code=status_codes.HTTP_200_OK)
     async def sign_in(
         self, data: SignIn, user_service: UserService
@@ -74,7 +86,9 @@ class AuthController(Controller):
                 f'User "{data.login}" doesn\'t exist'
             ) from e
 
-        if bcrypt.checkpw(data.password, user.password):
+        if bcrypt.checkpw(
+            data.password.encode(encoding="utf-8"), user.hashed_password
+        ):
             return SuccessSignIn(
                 token=jwt_auth.create_token(
                     identifier=user.login, token_expiration=timedelta(hours=24)

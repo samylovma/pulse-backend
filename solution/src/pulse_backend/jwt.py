@@ -17,7 +17,8 @@ async def retrieve_user_handler(
 
 jwt_auth = JWTAuth[User](
     retrieve_user_handler=retrieve_user_handler,
-    token_secret="1234",
+    # TODO: Inject/generate token_secret.
+    token_secret="12345",
     exclude=[
         "/api/ping",
         "/api/countries",

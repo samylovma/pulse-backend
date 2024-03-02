@@ -1,10 +1,10 @@
-from advanced_alchemy.base import CommonTableAttributes
+from advanced_alchemy.base import CommonTableAttributes, orm_registry
 from sqlalchemy import TEXT, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
-    ...
+    registry = orm_registry
 
 
 class Country(CommonTableAttributes, Base):
@@ -23,7 +23,7 @@ class User(CommonTableAttributes, Base):
     )
     email: Mapped[str] = mapped_column(String(50), unique=True)
     password: Mapped[bytes]
-    country_code: Mapped[str]  #  = mapped_column(ForeignKey(Country.alpha2))
+    country_code: Mapped[str] = mapped_column(String(2))
     is_public: Mapped[bool]
     phone: Mapped[str | None] = mapped_column(String(20), unique=True)
     image: Mapped[str | None] = mapped_column(String(200))

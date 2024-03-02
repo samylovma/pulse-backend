@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from datetime import timedelta
-from typing import Annotated
+from typing import Annotated, Any
 
 import bcrypt
 import pydantic
@@ -51,6 +51,17 @@ ReadDTO = SQLAlchemyDTO[
 ]
 
 
+class UserProfile(pydantic.BaseModel):
+    model_config = pydantic.ConfigDict(from_attributes=True)
+
+    login: str
+    email: str
+    country_code: str = pydantic.Field(serialization_alias="countryCode")
+    is_public: bool = pydantic.Field(serialization_alias="isPublic")
+    phone: str | None
+    image: str | None
+
+
 async def provide_user_service(db_session: AsyncSession) -> UserService:
     return UserService(session=db_session)
 
@@ -59,16 +70,19 @@ class AuthController(Controller):
     path = "/auth"
     dependencies = {"user_service": Provide(provide_user_service)}  # noqa: RUF012
 
-    @post("/register", return_dto=ReadDTO)
+    @post("/register")
     async def register(
         self, data: Register, user_service: UserService
-    ) -> User:
+    ) -> dict[str, Any]:
         try:
-            return await user_service.create(
+            user = await user_service.create(
                 data.model_dump(), auto_commit=True
             )
-        # FIXME: IntegrityError can be raised not only for the error of
-        # uniqueness data.
+            return {
+                "profile": UserProfile.model_validate(user).model_dump(
+                    by_alias=True, exclude_none=True
+                )
+            }
         except IntegrityError as e:
             raise ClientException(
                 status_code=status_codes.HTTP_409_CONFLICT

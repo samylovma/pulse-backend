@@ -1,10 +1,13 @@
-from typing import Annotated
+from typing import Annotated, cast
 
 import bcrypt
 import pydantic
-from litestar import Controller, post
+import sqlalchemy
+from litestar import Controller, post, status_codes
 from litestar.contrib.sqlalchemy.dto import SQLAlchemyDTO, SQLAlchemyDTOConfig
 from litestar.di import Provide
+from litestar.exceptions import ClientException
+from sqlalchemy import insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from pulse_backend.db_schema import User
@@ -48,4 +51,14 @@ class AuthController(Controller):
         self, data: RegisterUser, user_service: UserService
     ) -> User:
         data.password = bcrypt.hashpw(data.password, bcrypt.gensalt())
-        return await user_service.create(data.model_dump())
+        try:
+            return cast(
+                User,
+                await user_service.repository.session.scalar(
+                    insert(User).returning(User), data.model_dump()
+                ),
+            )
+        except sqlalchemy.exc.IntegrityError as e:
+            raise ClientException(
+                status_code=status_codes.HTTP_409_CONFLICT
+            ) from e

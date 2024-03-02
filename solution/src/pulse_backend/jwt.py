@@ -1,3 +1,4 @@
+from os import getenv
 from typing import Any
 
 from litestar.connection import ASGIConnection
@@ -17,8 +18,7 @@ async def retrieve_user_handler(
 
 jwt_auth = JWTAuth[User](
     retrieve_user_handler=retrieve_user_handler,
-    # TODO: Inject/generate token_secret.
-    token_secret="12345",
+    token_secret=getenv("RANDOM_SECRET", "token"),
     exclude=[
         "/api/ping",
         "/api/countries",

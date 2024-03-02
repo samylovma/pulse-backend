@@ -1,5 +1,5 @@
 from datetime import timedelta
-from typing import Annotated
+from typing import Annotated, ClassVar
 
 import bcrypt
 import pydantic
@@ -54,7 +54,7 @@ async def provide_user_service(db_session: AsyncSession) -> UserService:
 
 class AuthController(Controller):
     path = "/auth"
-    dependencies = {"user_service": Provide(provide_user_service)}
+    dependencies: ClassVar = {"user_service": Provide(provide_user_service)}
 
     @post("/register", return_dto=ReadDTO)
     async def register(

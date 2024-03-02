@@ -1,0 +1,15 @@
+services:
+  app:
+    build: .
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - POSTGRES_HOST=db
+      - POSTGRES_PASSWORD=password
+    depends_on:
+      - db
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_PASSWORD=password

@@ -16,5 +16,6 @@ COPY migrations migrations
 ENV LITESTAR_APP=pulse_backend:create_app
 ENV SERVER_PORT=8080
 
-CMD exec ./venv/bin/litestar database upgrade --no-prompt &&\
-    exec ./venv/bin/litestar run --port=$SERVER_PORT --host=0.0.0.0
+COPY run.sh .
+RUN chmod +x ./run.sh
+CMD ["./run.sh"]

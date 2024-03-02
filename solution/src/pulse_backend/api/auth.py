@@ -1,20 +1,21 @@
-from typing import Annotated, cast
+from datetime import timedelta
+from typing import Annotated
 
 import bcrypt
 import pydantic
-import sqlalchemy
+from advanced_alchemy.exceptions import NotFoundError
 from litestar import Controller, post, status_codes
 from litestar.contrib.sqlalchemy.dto import SQLAlchemyDTO, SQLAlchemyDTOConfig
 from litestar.di import Provide
-from litestar.exceptions import ClientException
-from sqlalchemy import insert
+from litestar.exceptions import NotAuthorizedException
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from pulse_backend.db_schema import User
+from pulse_backend.jwt import jwt_auth
 from pulse_backend.services import UserService
 
 
-class RegisterUser(pydantic.BaseModel):
+class Register(pydantic.BaseModel):
     login: str
     email: str
     password: bytes
@@ -24,6 +25,15 @@ class RegisterUser(pydantic.BaseModel):
     image: str | None = None
 
     # TODO: Validate.
+
+
+class SignIn(pydantic.BaseModel):
+    login: str
+    password: bytes
+
+
+class SuccessSignIn(pydantic.BaseModel):
+    token: str
 
 
 ReadDTO = SQLAlchemyDTO[
@@ -48,17 +58,28 @@ class AuthController(Controller):
 
     @post("/register", return_dto=ReadDTO)
     async def register(
-        self, data: RegisterUser, user_service: UserService
+        self, data: Register, user_service: UserService
     ) -> User:
         data.password = bcrypt.hashpw(data.password, bcrypt.gensalt())
+        return await user_service.create(data.model_dump(), auto_commit=True)
+
+    @post("/sign-in", status_code=status_codes.HTTP_200_OK)
+    async def sign_in(
+        self, data: SignIn, user_service: UserService
+    ) -> SuccessSignIn:
         try:
-            return cast(
-                User,
-                await user_service.repository.session.scalar(
-                    insert(User).returning(User), data.model_dump()
-                ),
-            )
-        except sqlalchemy.exc.IntegrityError as e:
-            raise ClientException(
-                status_code=status_codes.HTTP_409_CONFLICT
+            user: User = await user_service.get_one(login=data.login)
+        except NotFoundError as e:
+            raise NotAuthorizedException(
+                f'User "{data.login}" doesn\'t exist'
             ) from e
+
+        if bcrypt.checkpw(data.password, user.password):
+            return SuccessSignIn(
+                token=jwt_auth.create_token(
+                    identifier=user.login, token_expiration=timedelta(hours=24)
+                )
+            )
+        raise NotAuthorizedException(
+            f'Invalid password for user "{user.login}"'
+        )

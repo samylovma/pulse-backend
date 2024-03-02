@@ -11,6 +11,7 @@ from litestar.exceptions import LitestarException
 from sqlalchemy import URL
 
 from pulse_backend.api import create_router
+from pulse_backend.jwt import jwt_auth
 
 
 @dataclass(frozen=True, slots=True)
@@ -33,6 +34,7 @@ def create_app() -> Litestar:
     return Litestar(
         route_handlers=(create_router(),),
         exception_handlers={LitestarException: exc_handler},
+        on_app_init=(jwt_auth.on_app_init,),
         plugins=(
             SQLAlchemyPlugin(
                 config=SQLAlchemyAsyncConfig(

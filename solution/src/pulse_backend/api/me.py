@@ -10,7 +10,7 @@ from litestar.security.jwt import Token
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from pulse_backend.db_schema import User
-from pulse_backend.schemas import UserProfile
+from pulse_backend.schema import UserProfile
 from pulse_backend.services import UserService
 
 

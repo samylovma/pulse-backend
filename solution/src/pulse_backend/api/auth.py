@@ -21,7 +21,7 @@ class AuthController(Controller):
     dependencies = {
         "country_service": Provide(provide_country_service),
         "user_service": Provide(provide_user_service),
-    }  # noqa: RUF012
+    }
 
     @post("/api/auth/register")
     async def register(

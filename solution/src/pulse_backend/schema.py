@@ -66,3 +66,27 @@ class SignInUser(BaseModel):
         Field(min_length=6, max_length=100),
         AfterValidator(validate_password),
     ]
+
+
+class UpdateUser(pydantic.BaseModel):
+    countryCode: Annotated[
+        str | None, Field(max_length=2, pattern=r"[a-zA-Z]{2}")
+    ] = None
+    isPublic: bool | None = None
+    phone: Annotated[str | None, Field(max_length=20, pattern=r"\+[\d]+")] = (
+        None
+    )
+    image: Annotated[str | None, Field(min_length=1, max_length=200)] = None
+
+
+class UpdatePassword(BaseModel):
+    oldPassword: Annotated[
+        str,
+        Field(min_length=6, max_length=100),
+        AfterValidator(validate_password),
+    ]
+    newPassword: Annotated[
+        str,
+        Field(min_length=6, max_length=100),
+        AfterValidator(validate_password),
+    ]

@@ -1,57 +1,47 @@
-from typing import Annotated, Any
+from typing import Any
 
 import bcrypt
-import pydantic
-from advanced_alchemy.exceptions import IntegrityError
+from advanced_alchemy.exceptions import IntegrityError, NotFoundError
 from litestar import Controller, Request, get, patch, post, status_codes
 from litestar.di import Provide
-from litestar.exceptions import ClientException, PermissionDeniedException
+from litestar.exceptions import (
+    ClientException,
+    PermissionDeniedException,
+    ValidationException,
+)
 from litestar.security.jwt import Token
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from pulse_backend.db_schema import User
-from pulse_backend.schema import UserProfile
-from pulse_backend.services import UserService
-
-
-class UserUpdate(pydantic.BaseModel):
-    country_code: Annotated[
-        str | None, pydantic.Field(serialization_alias="countryCode")
-    ] = None
-    is_public: Annotated[
-        bool | None, pydantic.Field(serialization_alias="isPublic")
-    ] = None
-    phone: str | None = None
-    image: str | None = None
-
-    # TODO: Validate.
-
-
-class UpdatePassword(pydantic.BaseModel):
-    oldPassword: str
-    newPassword: str
-
-
-async def provide_user_service(db_session: AsyncSession) -> UserService:
-    return UserService(session=db_session)
+from pulse_backend.schema import UserProfile, UpdateUser, UpdatePassword
+from pulse_backend.services import UserService, CountryService
+from pulse_backend.deps import provide_country_service, provide_user_service
 
 
 class MeController(Controller):
-    dependencies = {"user_service": Provide(provide_user_service)}  # noqa: RUF012
+    dependencies = {
+        "country_service": Provide(provide_country_service),
+        "user_service": Provide(provide_user_service),
+    }
 
     @get("/api/me/profile")
     async def get(self, request: Request[User, Token, Any]) -> dict[str, Any]:
         return UserProfile.model_validate(request.user).model_dump(
-            by_alias=True, exclude_none=True
+            exclude_none=True
         )
 
     @patch("/api/me/profile")
     async def update(
         self,
-        data: UserUpdate,
+        data: UpdateUser,
         request: Request[User, Token, Any],
+        country_service: CountryService,
         user_service: UserService,
-    ) -> UserProfile:
+    ) -> dict[str, Any]:
+        try:
+            await country_service.get_one(alpha2=data.countryCode)
+        except NotFoundError as e:
+            raise ValidationException("Country not found") from e
+
         try:
             user = await user_service.update(
                 data.model_dump(exclude_unset=True),
@@ -59,7 +49,9 @@ class MeController(Controller):
                 auto_commit=True,
                 id_attribute="login",
             )
-            return UserProfile.model_validate(user)
+            return UserProfile.model_validate(user).model_dump(
+                exclude_none=True
+            )
         except IntegrityError as e:
             raise ClientException(
                 status_code=status_codes.HTTP_409_CONFLICT
@@ -72,6 +64,7 @@ class MeController(Controller):
         request: Request[User, Token, Any],
         user_service: UserService,
     ) -> dict[str, Any]:
+        # TODO: Revoke old tokens.
         if bcrypt.checkpw(
             data.oldPassword.encode(encoding="utf-8"),
             request.user.hashedPassword,

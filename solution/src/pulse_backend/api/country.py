@@ -13,7 +13,7 @@ from pulse_backend.deps import provide_country_service
 
 
 class CountryController(Controller):
-    dependencies = {"country_service": Provide(provide_country_service)}  # noqa: RUF012
+    dependencies = {"country_service": Provide(provide_country_service)}
 
     @get("/api/countries")
     async def list_countries(

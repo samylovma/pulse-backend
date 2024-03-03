@@ -33,7 +33,7 @@ def exc_handler(
 def create_app() -> Litestar:
     return Litestar(
         route_handlers=(create_router(),),
-        exception_handlers={LitestarException: exc_handler},
+        exception_handlers={Exception: exc_handler},
         on_app_init=(jwt_auth.on_app_init,),
         plugins=(
             SQLAlchemyPlugin(

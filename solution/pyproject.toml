@@ -5,6 +5,7 @@ dependencies = [
     "litestar[pydantic,jwt,sqlalchemy,standard]",
     "asyncpg",
     "bcrypt",
+    "email-validator",  # for pydantic
 ]
 
 [tool.pip-tools]

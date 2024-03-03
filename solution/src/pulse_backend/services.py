@@ -28,7 +28,7 @@ class UserService(SQLAlchemyAsyncRepositoryService[User]):
         if isinstance(data, dict):
             password: str | None = data.pop("password", None)
             if password is not None:
-                data["hashed_password"] = bcrypt.hashpw(
+                data["hashedPassword"] = bcrypt.hashpw(
                     password.encode(encoding="utf-8"), bcrypt.gensalt()
                 )
         return await super().to_model(data, operation)

@@ -74,7 +74,7 @@ class MeController(Controller):
     ) -> dict[str, Any]:
         if bcrypt.checkpw(
             data.oldPassword.encode(encoding="utf-8"),
-            request.user.hashed_password,
+            request.user.hashedPassword,
         ):
             await user_service.update(
                 {"password": data.newPassword},

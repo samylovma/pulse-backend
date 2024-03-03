@@ -22,8 +22,8 @@ class User(CommonTableAttributes, Base):
         String(30), primary_key=True, unique=True
     )
     email: Mapped[str] = mapped_column(String(50), unique=True)
-    hashed_password: Mapped[bytes]
-    country_code: Mapped[str] = mapped_column(String(2))
-    is_public: Mapped[bool]
+    hashedPassword: Mapped[bytes]
+    countryCode: Mapped[str] = mapped_column(String(2))
+    isPublic: Mapped[bool]
     phone: Mapped[str | None] = mapped_column(String(20), unique=True)
     image: Mapped[str | None] = mapped_column(String(200))

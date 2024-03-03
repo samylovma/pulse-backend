@@ -6,14 +6,10 @@ from advanced_alchemy.filters import CollectionFilter, FilterTypes, OrderBy
 from litestar import Controller, get
 from litestar.params import Parameter
 from litestar.di import Provide
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from pulse_backend.schema import Country, CountryRegion
 from pulse_backend.services import CountryService
-
-
-async def provide_country_service(db_session: AsyncSession) -> CountryService:
-    return CountryService(session=db_session)
+from pulse_backend.deps import provide_country_service
 
 
 class CountryController(Controller):

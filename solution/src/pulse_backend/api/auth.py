@@ -1,4 +1,3 @@
-from datetime import timedelta
 from typing import Any
 
 import bcrypt
@@ -11,16 +10,20 @@ from litestar.exceptions import (
     ValidationException,
 )
 
-from pulse_backend.jwt import jwt_auth
 from pulse_backend.schema import UserProfile, RegisterUser, SignInUser
-from pulse_backend.services import UserService, CountryService
-from pulse_backend.deps import provide_user_service, provide_country_service
+from pulse_backend.services import UserService, CountryService, TokenService
+from pulse_backend.deps import (
+    provide_user_service,
+    provide_country_service,
+    provide_token_service,
+)
 
 
 class AuthController(Controller):
     dependencies = {
         "country_service": Provide(provide_country_service),
         "user_service": Provide(provide_user_service),
+        "token_service": Provide(provide_token_service),
     }
 
     @post("/api/auth/register")
@@ -53,7 +56,10 @@ class AuthController(Controller):
 
     @post("/api/auth/sign-in", status_code=status_codes.HTTP_200_OK)
     async def sign_in(
-        self, data: SignInUser, user_service: UserService
+        self,
+        data: SignInUser,
+        user_service: UserService,
+        token_service: TokenService,
     ) -> dict[str, Any]:
         try:
             user = await user_service.get_one(login=data.login)
@@ -63,10 +69,7 @@ class AuthController(Controller):
         if bcrypt.checkpw(
             data.password.encode(encoding="utf-8"), user.hashedPassword
         ):
-            return {
-                "token": jwt_auth.create_token(
-                    identifier=user.login, token_expiration=timedelta(hours=24)
-                )
-            }
+            token = await token_service.create_token(data.login)
+            return {"token": token}
 
         raise NotAuthorizedException("Invalid password")

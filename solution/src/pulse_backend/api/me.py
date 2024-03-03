@@ -13,14 +13,19 @@ from litestar.security.jwt import Token
 
 from pulse_backend.db_schema import User
 from pulse_backend.schema import UserProfile, UpdateUser, UpdatePassword
-from pulse_backend.services import UserService, CountryService
-from pulse_backend.deps import provide_country_service, provide_user_service
+from pulse_backend.services import UserService, CountryService, TokenService
+from pulse_backend.deps import (
+    provide_country_service,
+    provide_user_service,
+    provide_token_service,
+)
 
 
 class MeController(Controller):
     dependencies = {
         "country_service": Provide(provide_country_service),
         "user_service": Provide(provide_user_service),
+        "token_service": Provide(provide_token_service),
     }
 
     @get("/api/me/profile")
@@ -63,6 +68,7 @@ class MeController(Controller):
         data: UpdatePassword,
         request: Request[User, Token, Any],
         user_service: UserService,
+        token_service: TokenService,
     ) -> dict[str, Any]:
         # TODO: Revoke old tokens.
         if bcrypt.checkpw(
@@ -75,5 +81,6 @@ class MeController(Controller):
                 auto_commit=True,
                 id_attribute="login",
             )
+            await token_service.revoke_user(request.user.login)
             return {"status": "ok"}
         raise PermissionDeniedException("Invalid password")

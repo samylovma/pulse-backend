@@ -1,6 +1,6 @@
 from advanced_alchemy.base import CommonTableAttributes, orm_registry
-from sqlalchemy import TEXT, String
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+from sqlalchemy import TEXT, String, ForeignKey
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
 class Base(DeclarativeBase):
@@ -27,3 +27,11 @@ class User(CommonTableAttributes, Base):
     isPublic: Mapped[bool]
     phone: Mapped[str | None] = mapped_column(String(20), unique=True)
     image: Mapped[str | None] = mapped_column(String(200))
+
+
+class Token(CommonTableAttributes, Base):
+    token: Mapped[str] = mapped_column(primary_key=True, unique=True)
+    user_login: Mapped[str] = mapped_column(ForeignKey(User.login))
+    is_revoked: Mapped[bool] = mapped_column(default=False)
+
+    user: Mapped[User] = relationship(lazy="joined")

@@ -17,10 +17,9 @@ async def provide_country_service(db_session: AsyncSession) -> CountryService:
 
 
 class CountryController(Controller):
-    path = "/countries"
     dependencies = {"country_service": Provide(provide_country_service)}  # noqa: RUF012
 
-    @get()
+    @get("/api/countries")
     async def list_countries(
         self,
         country_service: CountryService,
@@ -39,7 +38,7 @@ class CountryController(Controller):
             for country in countries
         ]
 
-    @get("/{alpha2:str}")
+    @get("/api/countries/{alpha2:str}")
     async def get_country(
         self,
         country_service: CountryService,

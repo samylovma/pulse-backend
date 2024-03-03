@@ -37,16 +37,15 @@ async def provide_user_service(db_session: AsyncSession) -> UserService:
 
 
 class MeController(Controller):
-    path = "/me"
     dependencies = {"user_service": Provide(provide_user_service)}  # noqa: RUF012
 
-    @get("/profile")
+    @get("/api/me/profile")
     async def get(self, request: Request[User, Token, Any]) -> dict[str, Any]:
         return UserProfile.model_validate(request.user).model_dump(
             by_alias=True, exclude_none=True
         )
 
-    @patch("/profile")
+    @patch("/api/me/profile")
     async def update(
         self,
         data: UserUpdate,
@@ -66,7 +65,7 @@ class MeController(Controller):
                 status_code=status_codes.HTTP_409_CONFLICT
             ) from e
 
-    @post("/updatePassword")
+    @post("/api/me/updatePassword")
     async def update_password(
         self,
         data: UpdatePassword,

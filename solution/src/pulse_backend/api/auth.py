@@ -44,10 +44,9 @@ async def provide_user_service(db_session: AsyncSession) -> UserService:
 
 
 class AuthController(Controller):
-    path = "/auth"
     dependencies = {"user_service": Provide(provide_user_service)}  # noqa: RUF012
 
-    @post("/register")
+    @post("/api/auth/register")
     async def register(
         self, data: Register, user_service: UserService
     ) -> dict[str, Any]:
@@ -65,8 +64,7 @@ class AuthController(Controller):
                 status_code=status_codes.HTTP_409_CONFLICT
             ) from e
 
-    # TODO: Refactor the method. Move logic to UserService.
-    @post("/sign-in", status_code=status_codes.HTTP_200_OK)
+    @post("/api/auth/sign-in", status_code=status_codes.HTTP_200_OK)
     async def sign_in(
         self, data: SignIn, user_service: UserService
     ) -> SuccessSignIn:

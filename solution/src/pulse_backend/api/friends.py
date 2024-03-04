@@ -61,7 +61,6 @@ class FriendsController(Controller):
         if friend_user.login == request.user.login:
             return {"status": "ok"}
 
-        # TODO: Use upsert.
         friend = await friend_service.get_one_or_none(
             of_login=request.user.login, login=friend_user.login
         )

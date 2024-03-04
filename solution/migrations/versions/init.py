@@ -26,6 +26,7 @@ from advanced_alchemy.types import (
     EncryptedText,
 )
 from alembic import op
+from sqlalchemy.dialects import postgresql
 
 sa.GUID = GUID
 sa.DateTimeUTC = DateTimeUTC
@@ -95,6 +96,7 @@ def schema_upgrades() -> None:
             "of_login", "login", "id", name=op.f("pk_friend")
         ),
     )
+    op.execute(sa.schema.CreateSequence(sa.Sequence("friend_id_seq")))
     op.create_table(
         "token",
         sa.Column("id", sa.GUID(length=16), nullable=False),
@@ -107,15 +109,32 @@ def schema_upgrades() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_token")),
     )
-    op.execute(sa.schema.CreateSequence(sa.Sequence("friend_id_seq")))
+    op.create_table(
+        "post",
+        sa.Column("id", sa.GUID(length=16), nullable=False),
+        sa.Column("content", sa.String(length=1000), nullable=False),
+        sa.Column("author", sa.String(length=30), nullable=False),
+        sa.Column(
+            "tags", postgresql.ARRAY(sa.String(length=20)), nullable=False
+        ),
+        sa.Column("createdAt", sa.TIMESTAMP(timezone=True), nullable=False),
+        sa.Column("likesCount", sa.Integer(), nullable=False),
+        sa.Column("dislikesCount", sa.Integer(), nullable=False),
+        sa.Column("sa_orm_sentinel", sa.Integer(), nullable=True),
+        sa.ForeignKeyConstraint(
+            ["author"], ["user.login"], name=op.f("fk_post_author_user")
+        ),
+        sa.PrimaryKeyConstraint("id", name=op.f("pk_post")),
+    )
 
 
 def schema_downgrades() -> None:
     """schema downgrade migrations go here."""
     op.drop_table("token")
     op.drop_table("friend")
-    op.drop_table("user")
     op.execute(sa.schema.DropSequence(sa.Sequence("friend_id_seq")))
+    op.drop_table("user")
+    op.drop_table("post")
 
 
 def data_upgrades() -> None:

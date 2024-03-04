@@ -94,3 +94,8 @@ class UpdatePassword(BaseModel):
 
 class AddFriend(BaseModel):
     login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]
+
+
+class CreatePost(BaseModel):
+    content: Annotated[str, Field(max_length=1000)]
+    tags: list[str]

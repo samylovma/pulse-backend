@@ -4,6 +4,7 @@ from pulse_backend.jwt import jwt_auth
 from pulse_backend.services import (
     CountryService,
     FriendService,
+    PostService,
     TokenService,
     UserService,
 )
@@ -23,3 +24,7 @@ async def provide_friend_service(db_session: AsyncSession) -> FriendService:
 
 async def provide_token_service(db_session: AsyncSession) -> TokenService:
     return TokenService(db_session, jwt_auth)
+
+
+async def provide_post_service(db_session: AsyncSession) -> PostService:
+    return PostService(session=db_session)

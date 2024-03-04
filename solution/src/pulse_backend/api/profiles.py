@@ -34,10 +34,7 @@ async def get_profile(
     if user is None:
         raise PermissionDeniedException("User does not exist")
 
-    if (
-        user.isPublic is True
-        or user.login == request.user.login
-    ):
+    if user.isPublic is True or user.login == request.user.login:
         return UserProfile.model_validate(user).model_dump(exclude_none=True)
 
     friend: Friend | None = await friend_service.get_one_or_none(

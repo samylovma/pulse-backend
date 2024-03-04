@@ -7,6 +7,7 @@ from advanced_alchemy.base import (
     orm_registry,
 )
 from sqlalchemy import TEXT, TIMESTAMP, ForeignKey, String
+from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -48,4 +49,15 @@ class Friend(BigIntBase):
 
 class Token(UUIDBase):
     user_login: Mapped[str] = mapped_column(ForeignKey(User.login))
+    user: Mapped[User] = relationship(lazy="joined")
+
+
+class Post(UUIDBase):
+    content: Mapped[str] = mapped_column(String(1000))
+    author: Mapped[str] = mapped_column(ForeignKey(User.login))
+    tags: Mapped[list[str]] = mapped_column(ARRAY(String(20)))
+    createdAt: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
+    likesCount: Mapped[int] = mapped_column(default=0)
+    dislikesCount: Mapped[int] = mapped_column(default=0)
+
     user: Mapped[User] = relationship(lazy="joined")

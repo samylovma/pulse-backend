@@ -10,7 +10,7 @@ from litestar.security.jwt import Token as JWTToken
 from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from pulse_backend.db_schema import Country, Friend, Token, User
+from pulse_backend.db_schema import Country, Friend, Post, Token, User
 
 
 class CountryRepository(SQLAlchemyAsyncRepository[Country]):
@@ -88,3 +88,11 @@ class TokenService:
             delete(Token).where(Token.user_login == user_login)
         )
         await self.__service.repository.session.commit()
+
+
+class PostRepository(SQLAlchemyAsyncRepository[Post]):
+    model_type = Post
+
+
+class PostService(SQLAlchemyAsyncRepositoryService[Post]):
+    repository_type = PostRepository

@@ -42,10 +42,11 @@ class MeController(Controller):
         country_service: CountryService,
         user_service: UserService,
     ) -> dict[str, Any]:
-        try:
-            await country_service.get_one(alpha2=data.countryCode)
-        except NotFoundError as e:
-            raise ValidationException("Country not found") from e
+        if data.countryCode:
+            try:
+                await country_service.get_one(alpha2=data.countryCode)
+            except NotFoundError as e:
+                raise ValidationException("Country not found") from e
 
         try:
             user = await user_service.update(

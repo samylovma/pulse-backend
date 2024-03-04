@@ -10,7 +10,6 @@ from litestar.pagination import AbstractAsyncOffsetPaginator, OffsetPagination
 from litestar.params import Parameter
 from litestar.security import jwt
 from litestar.status_codes import HTTP_200_OK
-from sqlalchemy import delete, update
 
 from pulse_backend.db_schema import Friend, User
 from pulse_backend.deps import provide_friend_service, provide_user_service
@@ -62,6 +61,7 @@ class FriendsController(Controller):
         if friend_user.login == request.user.login:
             return {"status": "ok"}
 
+        # TODO: Use upsert.
         friend = await friend_service.get_one_or_none(
             of_login=request.user.login, login=friend_user.login
         )
@@ -73,14 +73,8 @@ class FriendsController(Controller):
             )
             await friend_service.create(friend, auto_commit=True)
         else:
-            stmt = (
-                update(Friend)
-                .where(Friend.of_login == request.user.login)
-                .where(Friend.login == friend_user.login)
-                .values(addedAt=datetime.now(UTC))
-            )
-            await friend_service.repository.session.execute(stmt)
-            await friend_service.repository.session.commit()
+            friend.addedAt = datetime.now(UTC)
+            await friend_service.update(friend, auto_commit=True)
 
         return {"status": "ok"}
 
@@ -95,17 +89,8 @@ class FriendsController(Controller):
         friend: Friend | None = await friend_service.get_one_or_none(
             of_login=request.user.login, login=data.login
         )
-        if friend is None:
-            return {"status": "ok"}
-
-        stmt = (
-            delete(Friend)
-            .where(Friend.of_login == request.user.login)
-            .where(Friend.login == data.login)
-        )
-        await friend_service.repository.session.execute(stmt)
-        await friend_service.repository.session.commit()
-
+        if isinstance(friend, Friend):
+            await friend_service.delete(friend.id, auto_commit=True)
         return {"status": "ok"}
 
     @get(

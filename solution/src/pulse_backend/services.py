@@ -10,7 +10,7 @@ from litestar.security.jwt import Token as JWTToken
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import delete
 
-from pulse_backend.db_schema import Country, User, Token
+from pulse_backend.db_schema import Country, User, Token, Friend
 
 
 class CountryRepository(SQLAlchemyAsyncRepository[Country]):
@@ -38,6 +38,14 @@ class UserService(SQLAlchemyAsyncRepositoryService[User]):
                     password.encode(encoding="utf-8"), bcrypt.gensalt()
                 )
         return await super().to_model(data, operation)
+
+
+class FriendRepository(SQLAlchemyAsyncRepository[Friend]):
+    model_type = Friend
+
+
+class FriendService(SQLAlchemyAsyncRepositoryService[Friend]):
+    repository_type = FriendRepository
 
 
 class TokenRepository(SQLAlchemyAsyncRepository[Token]):

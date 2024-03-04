@@ -1,5 +1,7 @@
+from datetime import datetime
+
 from advanced_alchemy.base import CommonTableAttributes, orm_registry, UUIDBase
-from sqlalchemy import TEXT, String, ForeignKey
+from sqlalchemy import TEXT, String, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 
@@ -27,6 +29,16 @@ class User(CommonTableAttributes, Base):
     isPublic: Mapped[bool]
     phone: Mapped[str | None] = mapped_column(String(20), unique=True)
     image: Mapped[str | None] = mapped_column(String(200))
+
+
+class Friend(CommonTableAttributes, Base):
+    of_login: Mapped[str] = mapped_column(
+        ForeignKey(User.login), primary_key=True
+    )
+    login: Mapped[str] = mapped_column(
+        ForeignKey(User.login), primary_key=True
+    )
+    addedAt: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
 
 
 class Token(UUIDBase):

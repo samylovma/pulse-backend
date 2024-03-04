@@ -90,3 +90,7 @@ class UpdatePassword(BaseModel):
         Field(min_length=6, max_length=100),
         AfterValidator(validate_password),
     ]
+
+
+class AddFriend(BaseModel):
+    login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]

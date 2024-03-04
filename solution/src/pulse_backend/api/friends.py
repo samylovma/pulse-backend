@@ -77,7 +77,7 @@ class FriendsController(Controller):
 
         return {"status": "ok"}
 
-    @post("/api/friends/remove")
+    @post("/api/friends/remove", status_code=HTTP_200_OK)
     async def remove_friend(
         self,
         data: AddFriend,

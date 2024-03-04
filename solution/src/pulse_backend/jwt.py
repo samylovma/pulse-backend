@@ -30,5 +30,6 @@ jwt_auth = JWTAuth[User](
         "/api/countries",
         "/api/auth/register",
         "/api/auth/sign-in",
+        "/schema",
     ],
 )

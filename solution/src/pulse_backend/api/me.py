@@ -10,6 +10,7 @@ from litestar.exceptions import (
     ValidationException,
 )
 from litestar.security.jwt import Token
+from litestar.status_codes import HTTP_200_OK
 
 from pulse_backend.db_schema import User
 from pulse_backend.deps import (
@@ -34,7 +35,7 @@ class MeController(Controller):
             exclude_none=True
         )
 
-    @patch("/api/me/profile")
+    @patch("/api/me/profile", status_code=HTTP_200_OK)
     async def update(
         self,
         data: UpdateUser,
@@ -63,7 +64,7 @@ class MeController(Controller):
                 status_code=status_codes.HTTP_409_CONFLICT
             ) from e
 
-    @post("/api/me/updatePassword")
+    @post("/api/me/updatePassword", status_code=HTTP_200_OK)
     async def update_password(
         self,
         data: UpdatePassword,

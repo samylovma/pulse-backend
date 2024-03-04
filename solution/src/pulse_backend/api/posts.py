@@ -7,6 +7,7 @@ from litestar import Controller, Request, get, post
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.security import jwt
+from litestar.status_codes import HTTP_200_OK
 
 from pulse_backend.db_schema import Friend, Post, User
 from pulse_backend.deps import provide_friend_service, provide_post_service
@@ -20,7 +21,7 @@ class PostsController(Controller):
         "friend_service": Provide(provide_friend_service),
     }
 
-    @post("/api/posts/new")
+    @post("/api/posts/new", status_code=HTTP_200_OK)
     async def create_post(
         self,
         data: CreatePost,

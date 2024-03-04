@@ -1,8 +1,8 @@
 """init
 
-Revision ID: aa49ca01e93a
+Revision ID: 7ec92c3e1859
 Revises:
-Create Date: 2024-03-04 08:05:37.181501+00:00
+Create Date: 2024-03-04 08:32:31.219055+00:00
 
 """
 
@@ -36,7 +36,7 @@ sa.EncryptedString = EncryptedString
 sa.EncryptedText = EncryptedText
 
 # revision identifiers, used by Alembic.
-revision = "aa49ca01e93a"
+revision = "7ec92c3e1859"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -82,7 +82,6 @@ def schema_upgrades() -> None:
         "token",
         sa.Column("id", sa.GUID(length=16), nullable=False),
         sa.Column("user_login", sa.String(length=30), nullable=False),
-        sa.Column("is_revoked", sa.Boolean(), nullable=False),
         sa.Column("sa_orm_sentinel", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(
             ["user_login"],

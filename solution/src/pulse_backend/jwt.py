@@ -17,9 +17,9 @@ async def retrieve_user_handler(
     )
     token_service = TokenService(db_session, jwt_auth)
     token_model: Token | None = await token_service.get(token)
-    if token_model is None or token_model.is_revoked:
-        return None
-    return token_model.user
+    if isinstance(token_model, Token):
+        return token_model.user
+    return None
 
 
 jwt_auth = JWTAuth[User](

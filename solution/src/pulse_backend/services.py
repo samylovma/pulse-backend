@@ -8,7 +8,7 @@ from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from litestar.security.jwt import BaseJWTAuth
 from litestar.security.jwt import Token as JWTToken
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import update
+from sqlalchemy import delete
 
 from pulse_backend.db_schema import Country, User, Token
 
@@ -65,8 +65,7 @@ class TokenService:
             jti=str(id_),
         )
         await self.__service.create(
-            Token(id=id_, user_login=user_login, is_revoked=False),
-            auto_commit=True,
+            Token(id=id_, user_login=user_login), auto_commit=True
         )
         return token.encode(
             secret=self.jwt_auth.token_secret,
@@ -78,10 +77,6 @@ class TokenService:
 
     async def revoke_user(self, user_login: str) -> None:
         await self.__service.repository.session.execute(
-            (
-                update(Token)
-                .where(Token.user_login == user_login)
-                .values(is_revoked=True)
-            )
+            delete(Token).where(Token.user_login == user_login)
         )
         await self.__service.repository.session.commit()

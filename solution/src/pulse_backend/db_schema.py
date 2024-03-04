@@ -31,6 +31,4 @@ class User(CommonTableAttributes, Base):
 
 class Token(UUIDBase):
     user_login: Mapped[str] = mapped_column(ForeignKey(User.login))
-    is_revoked: Mapped[bool] = mapped_column(default=False)
-
     user: Mapped[User] = relationship(lazy="joined")

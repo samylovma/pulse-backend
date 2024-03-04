@@ -103,18 +103,18 @@ class PostsController(Controller):
             if isinstance(friend, Friend):
                 f = True
 
-        if f is True:
-            return {
-                "id": post_.id,
-                "content": post_.content,
-                "author": post_.author,
-                "tags": post_.tags,
-                "createdAt": post_.createdAt.isoformat(),
-                "likesCount": post_.likesCount,
-                "dislikesCount": post_.dislikesCount,
-            }
+        if f is False:
+            raise NotFoundException("No access to post")
 
-        raise NotFoundException("No access to post")
+        return {
+            "id": post_.id,
+            "content": post_.content,
+            "author": post_.author,
+            "tags": post_.tags,
+            "createdAt": post_.createdAt.isoformat(),
+            "likesCount": post_.likesCount,
+            "dislikesCount": post_.dislikesCount,
+        }
 
     @get(
         "/api/posts/feed/my",

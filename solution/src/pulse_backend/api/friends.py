@@ -75,10 +75,8 @@ class FriendsController(Controller):
         else:
             stmt = (
                 update(Friend)
-                .where(
-                    Friend.of_login == request.user.login
-                    and Friend.login == friend_user.login
-                )
+                .where(Friend.of_login == request.user.login)
+                .where(Friend.login == friend_user.login)
                 .values(addedAt=datetime.now(UTC))
             )
             await friend_service.repository.session.execute(stmt)

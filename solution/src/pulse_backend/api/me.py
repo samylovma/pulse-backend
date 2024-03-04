@@ -71,7 +71,6 @@ class MeController(Controller):
         user_service: UserService,
         token_service: TokenService,
     ) -> dict[str, Any]:
-        # TODO: Revoke old tokens.
         if bcrypt.checkpw(
             data.oldPassword.encode(encoding="utf-8"),
             request.user.hashedPassword,

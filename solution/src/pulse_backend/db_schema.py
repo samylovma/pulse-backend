@@ -1,6 +1,11 @@
 from datetime import datetime
 
-from advanced_alchemy.base import CommonTableAttributes, orm_registry, UUIDBase
+from advanced_alchemy.base import (
+    CommonTableAttributes,
+    orm_registry,
+    UUIDBase,
+    BigIntBase,
+)
 from sqlalchemy import TEXT, String, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -31,7 +36,7 @@ class User(CommonTableAttributes, Base):
     image: Mapped[str | None] = mapped_column(String(200))
 
 
-class Friend(CommonTableAttributes, Base):
+class Friend(BigIntBase):
     of_login: Mapped[str] = mapped_column(
         ForeignKey(User.login), primary_key=True
     )

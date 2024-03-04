@@ -1,11 +1,16 @@
-from typing import Any
+from typing import Any, Annotated
 from datetime import datetime, UTC
+from collections.abc import Sequence
 
-from litestar import Controller, post, Request
+from litestar import Controller, post, Request, get
 from litestar.status_codes import HTTP_200_OK
 from litestar.security import jwt
 from litestar.exceptions import NotFoundException
+from litestar.params import Parameter
 from sqlalchemy import update, delete
+from litestar.pagination import AbstractAsyncOffsetPaginator, OffsetPagination
+from advanced_alchemy.filters import LimitOffset, OrderBy
+from litestar.di import Provide
 
 from pulse_backend.deps import provide_user_service, provide_friend_service
 from pulse_backend.schema import AddFriend
@@ -13,10 +18,32 @@ from pulse_backend.services import UserService, FriendService
 from pulse_backend.db_schema import User, Friend
 
 
+class FriendsOffsetPaginator(AbstractAsyncOffsetPaginator[Friend]):
+    def __init__(self, friend_service: FriendService) -> None:
+        self.friend_service = friend_service
+
+    async def __call__(  # type: ignore[override]
+        self, limit: int, offset: int, of_login: str
+    ) -> OffsetPagination[Friend]:
+        self.of_login = of_login
+        return await super().__call__(limit=limit, offset=offset)
+
+    async def get_total(self) -> int:
+        return await self.friend_service.count()
+
+    async def get_items(self, limit: int, offset: int) -> list[Friend]:
+        friends: Sequence[Friend] = await self.friend_service.list(
+            OrderBy(field_name="addedAt", sort_order="desc"),
+            LimitOffset(limit=limit, offset=offset),
+            of_login=self.of_login,
+        )
+        return list(friends)
+
+
 class FriendsController(Controller):
     dependencies = {
-        "user_service": provide_user_service,
-        "friend_service": provide_friend_service,
+        "user_service": Provide(provide_user_service),
+        "friend_service": Provide(provide_friend_service),
     }
 
     @post("/api/friends/add", status_code=HTTP_200_OK)
@@ -82,3 +109,22 @@ class FriendsController(Controller):
         await friend_service.repository.session.commit()
 
         return {"status": "ok"}
+
+    @get(
+        "/api/friends",
+        dependencies={"paginator": Provide(FriendsOffsetPaginator)},
+    )
+    async def list_friends(
+        self,
+        request: Request[User, jwt.Token, Any],
+        paginator: FriendsOffsetPaginator,
+        limit: Annotated[int, Parameter(ge=0, le=50)] = 5,
+        offset: Annotated[int, Parameter(ge=0)] = 0,
+    ) -> list[dict[str, Any]]:
+        result = await paginator(
+            limit=limit, offset=offset, of_login=request.user.login
+        )
+        return [
+            {"login": item.login, "addedAt": item.addedAt.isoformat()}
+            for item in result.items
+        ]

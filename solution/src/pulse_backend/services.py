@@ -1,5 +1,5 @@
+from datetime import UTC, datetime, timedelta
 from typing import Any
-from datetime import timedelta, datetime, UTC
 from uuid import uuid4
 
 import bcrypt
@@ -7,10 +7,10 @@ from advanced_alchemy import SQLAlchemyAsyncRepositoryService
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from litestar.security.jwt import BaseJWTAuth
 from litestar.security.jwt import Token as JWTToken
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import delete
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from pulse_backend.db_schema import Country, User, Token, Friend
+from pulse_backend.db_schema import Country, Friend, Token, User
 
 
 class CountryRepository(SQLAlchemyAsyncRepository[Country]):

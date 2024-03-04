@@ -1,14 +1,14 @@
 from typing import Annotated, Any
 
-from litestar import get, Request
-from litestar.params import Parameter
+from litestar import Request, get
 from litestar.exceptions import PermissionDeniedException
+from litestar.params import Parameter
 from litestar.security import jwt
 
+from pulse_backend.db_schema import Friend, User
+from pulse_backend.deps import provide_friend_service, provide_user_service
 from pulse_backend.schema import UserProfile
-from pulse_backend.deps import provide_user_service, provide_friend_service
-from pulse_backend.services import UserService, FriendService
-from pulse_backend.db_schema import User, Friend
+from pulse_backend.services import FriendService, UserService
 
 
 @get(

@@ -12,13 +12,13 @@ from litestar.exceptions import (
 from litestar.security.jwt import Token
 
 from pulse_backend.db_schema import User
-from pulse_backend.schema import UserProfile, UpdateUser, UpdatePassword
-from pulse_backend.services import UserService, CountryService, TokenService
 from pulse_backend.deps import (
     provide_country_service,
-    provide_user_service,
     provide_token_service,
+    provide_user_service,
 )
+from pulse_backend.schema import UpdatePassword, UpdateUser, UserProfile
+from pulse_backend.services import CountryService, TokenService, UserService
 
 
 class MeController(Controller):

@@ -5,8 +5,8 @@ from litestar.connection import ASGIConnection
 from litestar.security.jwt import JWTAuth
 from litestar.security.jwt import Token as JWTToken
 
+from pulse_backend.db_schema import Token, User
 from pulse_backend.services import TokenService
-from pulse_backend.db_schema import User, Token
 
 
 async def retrieve_user_handler(

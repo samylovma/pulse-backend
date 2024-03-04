@@ -1,21 +1,21 @@
-from typing import Any, Annotated
-from datetime import datetime, UTC
 from collections.abc import Sequence
+from datetime import UTC, datetime
+from typing import Annotated, Any
 
-from litestar import Controller, post, Request, get
-from litestar.status_codes import HTTP_200_OK
-from litestar.security import jwt
-from litestar.exceptions import NotFoundException
-from litestar.params import Parameter
-from sqlalchemy import update, delete
-from litestar.pagination import AbstractAsyncOffsetPaginator, OffsetPagination
 from advanced_alchemy.filters import LimitOffset, OrderBy
+from litestar import Controller, Request, get, post
 from litestar.di import Provide
+from litestar.exceptions import NotFoundException
+from litestar.pagination import AbstractAsyncOffsetPaginator, OffsetPagination
+from litestar.params import Parameter
+from litestar.security import jwt
+from litestar.status_codes import HTTP_200_OK
+from sqlalchemy import delete, update
 
-from pulse_backend.deps import provide_user_service, provide_friend_service
+from pulse_backend.db_schema import Friend, User
+from pulse_backend.deps import provide_friend_service, provide_user_service
 from pulse_backend.schema import AddFriend
-from pulse_backend.services import UserService, FriendService
-from pulse_backend.db_schema import User, Friend
+from pulse_backend.services import FriendService, UserService
 
 
 class FriendsOffsetPaginator(AbstractAsyncOffsetPaginator[Friend]):

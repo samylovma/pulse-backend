@@ -18,14 +18,14 @@ __all__ = (
 import warnings
 
 import sqlalchemy as sa
-from alembic import op
 from advanced_alchemy.types import (
-    EncryptedString,
-    EncryptedText,
     GUID,
     ORA_JSONB,
     DateTimeUTC,
+    EncryptedString,
+    EncryptedText,
 )
+from alembic import op
 
 sa.GUID = GUID
 sa.DateTimeUTC = DateTimeUTC

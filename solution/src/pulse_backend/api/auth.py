@@ -10,13 +10,13 @@ from litestar.exceptions import (
     ValidationException,
 )
 
-from pulse_backend.schema import UserProfile, RegisterUser, SignInUser
-from pulse_backend.services import UserService, CountryService, TokenService
 from pulse_backend.deps import (
-    provide_user_service,
     provide_country_service,
     provide_token_service,
+    provide_user_service,
 )
+from pulse_backend.schema import RegisterUser, SignInUser, UserProfile
+from pulse_backend.services import CountryService, TokenService, UserService
 
 
 class AuthController(Controller):

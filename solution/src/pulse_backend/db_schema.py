@@ -1,12 +1,12 @@
 from datetime import datetime
 
 from advanced_alchemy.base import (
-    CommonTableAttributes,
-    orm_registry,
-    UUIDBase,
     BigIntBase,
+    CommonTableAttributes,
+    UUIDBase,
+    orm_registry,
 )
-from sqlalchemy import TEXT, String, ForeignKey, TIMESTAMP
+from sqlalchemy import TEXT, TIMESTAMP, ForeignKey, String
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 

@@ -1,12 +1,12 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from pulse_backend.services import (
-    UserService,
-    CountryService,
-    TokenService,
-    FriendService,
-)
 from pulse_backend.jwt import jwt_auth
+from pulse_backend.services import (
+    CountryService,
+    FriendService,
+    TokenService,
+    UserService,
+)
 
 
 async def provide_country_service(db_session: AsyncSession) -> CountryService:

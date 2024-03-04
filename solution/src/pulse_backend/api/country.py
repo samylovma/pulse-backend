@@ -1,15 +1,15 @@
-from typing import Any, Annotated
+from typing import Annotated, Any
 
 import advanced_alchemy
 import litestar
 from advanced_alchemy.filters import CollectionFilter, FilterTypes, OrderBy
 from litestar import Controller, get
-from litestar.params import Parameter
 from litestar.di import Provide
+from litestar.params import Parameter
 
+from pulse_backend.deps import provide_country_service
 from pulse_backend.schema import Country, CountryRegion
 from pulse_backend.services import CountryService
-from pulse_backend.deps import provide_country_service
 
 
 class CountryController(Controller):

@@ -2,7 +2,7 @@ import enum
 from typing import Annotated
 
 import pydantic
-from pydantic import Field, EmailStr, AfterValidator
+from pydantic import AfterValidator, EmailStr, Field
 
 
 class BaseModel(pydantic.BaseModel):

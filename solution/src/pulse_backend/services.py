@@ -1,10 +1,12 @@
 from typing import Any
-from datetime import timedelta
+from datetime import timedelta, datetime, UTC
+from uuid import uuid4
 
 import bcrypt
 from advanced_alchemy import SQLAlchemyAsyncRepositoryService
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 from litestar.security.jwt import BaseJWTAuth
+from litestar.security.jwt import Token as JWTToken
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import update
 
@@ -55,17 +57,24 @@ class TokenService:
         self.__service: _TokenService = _TokenService(session=db_session)
 
     async def create_token(self, user_login: str) -> str:
-        token: str = self.jwt_auth.create_token(
-            identifier=user_login, token_expiration=timedelta(hours=24)
+        id_ = uuid4()
+        token = JWTToken(
+            exp=(datetime.now(UTC) + timedelta(hours=24)),
+            sub=user_login,
+            iat=datetime.now(UTC),
+            jti=str(id_),
         )
         await self.__service.create(
-            Token(token=token, user_login=user_login, is_revoked=False),
+            Token(id=id_, user_login=user_login, is_revoked=False),
             auto_commit=True,
         )
-        return token
+        return token.encode(
+            secret=self.jwt_auth.token_secret,
+            algorithm=self.jwt_auth.algorithm,
+        )
 
-    async def get(self, token: str) -> Token | None:
-        return await self.__service.get_one_or_none(token=token)
+    async def get(self, jwt_token: JWTToken) -> Token | None:
+        return await self.__service.get_one_or_none(id=jwt_token.jti)
 
     async def revoke_user(self, user_login: str) -> None:
         await self.__service.repository.session.execute(

@@ -1,4 +1,4 @@
-from advanced_alchemy.base import CommonTableAttributes, orm_registry
+from advanced_alchemy.base import CommonTableAttributes, orm_registry, UUIDBase
 from sqlalchemy import TEXT, String, ForeignKey
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -11,10 +11,10 @@ class Country(CommonTableAttributes, Base):
     __tablename__ = "countries"  # type: ignore[assignment]
 
     id: Mapped[int] = mapped_column(primary_key=True)
-    name: Mapped[str] = mapped_column(TEXT())
-    alpha2: Mapped[str] = mapped_column(TEXT())
-    alpha3: Mapped[str] = mapped_column(TEXT())
-    region: Mapped[str] = mapped_column(TEXT())
+    name: Mapped[str | None] = mapped_column(TEXT())
+    alpha2: Mapped[str | None] = mapped_column(TEXT())
+    alpha3: Mapped[str | None] = mapped_column(TEXT())
+    region: Mapped[str | None] = mapped_column(TEXT())
 
 
 class User(CommonTableAttributes, Base):
@@ -29,8 +29,7 @@ class User(CommonTableAttributes, Base):
     image: Mapped[str | None] = mapped_column(String(200))
 
 
-class Token(CommonTableAttributes, Base):
-    token: Mapped[str] = mapped_column(primary_key=True, unique=True)
+class Token(UUIDBase):
     user_login: Mapped[str] = mapped_column(ForeignKey(User.login))
     is_revoked: Mapped[bool] = mapped_column(default=False)
 

@@ -7,6 +7,9 @@ dependencies = [
     "bcrypt",
 ]
 
+[project.optional-dependencies]
+lint = ["ruff", "mypy"]
+
 [tool.pip-tools]
 generate-hashes = true
 
@@ -15,7 +18,16 @@ line-length = 79
 target-version = "py312"
 
 [tool.ruff.lint]
-select = ["F", "E", "W", "C90"]
+select = [
+    "F",  # Pyflakes
+    "E",  # pycodestyle
+    "W",  # pycodestyle
+    "C90",  # mccabe
+    "I",  # isort
+    "UP",  # pyupgrade
+    "S",  # flake8-bandit
+    "RUF",  # RUF
+]
 
 [tool.mypy]
 python_version = "3.12"

@@ -20,7 +20,7 @@ from pulse_backend.services import CountryService, TokenService, UserService
 
 
 class AuthController(Controller):
-    dependencies = {
+    dependencies = {  # noqa: RUF012
         "country_service": Provide(provide_country_service),
         "user_service": Provide(provide_user_service),
         "token_service": Provide(provide_token_service),

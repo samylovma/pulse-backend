@@ -40,7 +40,7 @@ class FriendsOffsetPaginator(AbstractAsyncOffsetPaginator[Friend]):
 
 
 class FriendsController(Controller):
-    dependencies = {
+    dependencies = {  # noqa: RUF012
         "user_service": Provide(provide_user_service),
         "friend_service": Provide(provide_friend_service),
     }

@@ -46,7 +46,7 @@ class PostsOffsetPaginator(AbstractAsyncOffsetPaginator[Post]):
 
 
 class PostsController(Controller):
-    dependencies = {
+    dependencies = {  # noqa: RUF012
         "post_service": Provide(provide_post_service),
         "friend_service": Provide(provide_friend_service),
         "user_service": Provide(provide_user_service),

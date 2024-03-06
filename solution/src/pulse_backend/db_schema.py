@@ -15,6 +15,8 @@ class Base(DeclarativeBase):
     registry = orm_registry
 
 
+# We shouldn't change the schema of this table,
+# so we just define it as it presented in the database.
 class Country(CommonTableAttributes, Base):
     __tablename__ = "countries"  # type: ignore[assignment]
 
@@ -25,7 +27,7 @@ class Country(CommonTableAttributes, Base):
     region: Mapped[str | None] = mapped_column(TEXT())
 
 
-class User(CommonTableAttributes, Base):
+class User(BigIntBase):
     login: Mapped[str] = mapped_column(
         String(30), primary_key=True, unique=True
     )

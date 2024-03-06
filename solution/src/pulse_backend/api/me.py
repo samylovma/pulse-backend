@@ -1,7 +1,7 @@
 from typing import Any
 
 import bcrypt
-from advanced_alchemy.exceptions import IntegrityError, NotFoundError
+from advanced_alchemy.exceptions import IntegrityError
 from litestar import Controller, Request, get, patch, post, status_codes
 from litestar.di import Provide
 from litestar.exceptions import (
@@ -44,17 +44,15 @@ class MeController(Controller):
         user_service: UserService,
     ) -> dict[str, Any]:
         if data.countryCode:
-            try:
-                await country_service.get_one(alpha2=data.countryCode)
-            except NotFoundError as e:
-                raise ValidationException("Country not found") from e
+            country = await country_service.get_one(alpha2=data.countryCode)
+            if country is None:
+                raise ValidationException("Country not found")
 
         try:
             user = await user_service.update(
                 data.model_dump(exclude_unset=True),
-                item_id=request.user.login,
+                item_id=request.user.id,
                 auto_commit=True,
-                id_attribute="login",
             )
             return UserProfile.model_validate(user).model_dump(
                 exclude_none=True
@@ -76,12 +74,11 @@ class MeController(Controller):
             data.oldPassword.encode(encoding="utf-8"),
             request.user.hashedPassword,
         ):
+            await token_service.revoke_user(request.user.login)
             await user_service.update(
                 {"password": data.newPassword},
-                item_id=request.user.login,
+                item_id=request.user.id,
                 auto_commit=True,
-                id_attribute="login",
             )
-            await token_service.revoke_user(request.user.login)
             return {"status": "ok"}
         raise PermissionDeniedException("Invalid password")

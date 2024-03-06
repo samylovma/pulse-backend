@@ -1,4 +1,3 @@
-from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import Annotated, Any
 
@@ -31,7 +30,7 @@ class FriendsOffsetPaginator(AbstractAsyncOffsetPaginator[Friend]):
         return await self.friend_service.count()
 
     async def get_items(self, limit: int, offset: int) -> list[Friend]:
-        friends: Sequence[Friend] = await self.friend_service.list(
+        friends = await self.friend_service.list(
             OrderBy(field_name="addedAt", sort_order="desc"),
             LimitOffset(limit=limit, offset=offset),
             of_login=self.of_login,

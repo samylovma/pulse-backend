@@ -1,7 +1,7 @@
 from typing import Any
 
 import bcrypt
-from advanced_alchemy.exceptions import IntegrityError, NotFoundError
+from advanced_alchemy.exceptions import IntegrityError
 from litestar import Controller, post, status_codes
 from litestar.di import Provide
 from litestar.exceptions import (
@@ -33,12 +33,11 @@ class AuthController(Controller):
         country_service: CountryService,
         user_service: UserService,
     ) -> dict[str, Any]:
-        try:
-            await country_service.get(
-                item_id=data.countryCode, id_attribute="alpha2"
-            )
-        except NotFoundError as e:
-            raise ValidationException("Country not found") from e
+        country = await country_service.get_one_or_none(
+            alpha2=data.countryCode
+        )
+        if country is None:
+            raise ValidationException("Country not found")
 
         try:
             user = await user_service.create(
@@ -61,10 +60,9 @@ class AuthController(Controller):
         user_service: UserService,
         token_service: TokenService,
     ) -> dict[str, Any]:
-        try:
-            user = await user_service.get_one(login=data.login)
-        except NotFoundError as e:
-            raise NotAuthorizedException("User doesn't exist") from e
+        user = await user_service.get_one_or_none(login=data.login)
+        if user is None:
+            raise NotAuthorizedException("User doesn't exist")
 
         if bcrypt.checkpw(
             data.password.encode(encoding="utf-8"), user.hashedPassword

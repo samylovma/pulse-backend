@@ -1,9 +1,7 @@
-from collections.abc import Sequence
 from datetime import UTC, datetime
 from typing import Annotated, Any
 from uuid import UUID, uuid4
 
-from advanced_alchemy.exceptions import NotFoundError
 from advanced_alchemy.filters import LimitOffset, OrderBy
 from litestar import Controller, Request, get, post
 from litestar.di import Provide
@@ -37,7 +35,7 @@ class PostsOffsetPaginator(AbstractAsyncOffsetPaginator[Post]):
         return await self.post_service.count()
 
     async def get_items(self, limit: int, offset: int) -> list[Post]:
-        posts: Sequence[Post] = await self.post_service.list(
+        posts = await self.post_service.list(
             OrderBy(field_name="createdAt", sort_order="desc"),
             LimitOffset(limit=limit, offset=offset),
             author=self.author,
@@ -59,22 +57,22 @@ class PostsController(Controller):
         request: Request[User, jwt.Token, Any],
         post_service: PostService,
     ) -> dict[str, Any]:
-        post_ = Post(
+        post = Post(
             id=uuid4(),
             content=data.content,
             author=request.user.login,
             tags=data.tags,
             createdAt=datetime.now(UTC),
         )
-        post_ = await post_service.create(post_, auto_commit=True)
+        post = await post_service.create(post, auto_commit=True)
         return {
-            "id": post_.id,
-            "content": post_.content,
-            "author": post_.author,
-            "tags": post_.tags,
-            "createdAt": post_.createdAt.isoformat(),
-            "likesCount": post_.likesCount,
-            "dislikesCount": post_.dislikesCount,
+            "id": post.id,
+            "content": post.content,
+            "author": post.author,
+            "tags": post.tags,
+            "createdAt": post.createdAt.isoformat(),
+            "likesCount": post.likesCount,
+            "dislikesCount": post.dislikesCount,
         }
 
     @get("/api/posts/{postId:str}")
@@ -85,20 +83,19 @@ class PostsController(Controller):
         post_service: PostService,
         friend_service: FriendService,
     ) -> dict[str, Any]:
-        try:
-            post_: Post = await post_service.get(postId)
-        except NotFoundError as e:
-            raise NotFoundException("Post not found") from e
+        post = await post_service.get_one_or_none(id=postId)
+        if post is None:
+            raise NotFoundException("Post not found")
 
         friend: Friend | None = await friend_service.get_one_or_none(
-            of_login=post_.author, login=request.user.login
+            of_login=post.author, login=request.user.login
         )
 
         f = False
-        if post_.user.isPublic is True:
+        if post.user.isPublic is True:
             f = True
-        if post_.user.isPublic is False:
-            if request.user.login == post_.author:
+        if post.user.isPublic is False:
+            if request.user.login == post.author:
                 f = True
             if isinstance(friend, Friend):
                 f = True
@@ -107,13 +104,13 @@ class PostsController(Controller):
             raise NotFoundException("No access to post")
 
         return {
-            "id": post_.id,
-            "content": post_.content,
-            "author": post_.author,
-            "tags": post_.tags,
-            "createdAt": post_.createdAt.isoformat(),
-            "likesCount": post_.likesCount,
-            "dislikesCount": post_.dislikesCount,
+            "id": post.id,
+            "content": post.content,
+            "author": post.author,
+            "tags": post.tags,
+            "createdAt": post.createdAt.isoformat(),
+            "likesCount": post.likesCount,
+            "dislikesCount": post.dislikesCount,
         }
 
     @get(
@@ -163,7 +160,7 @@ class PostsController(Controller):
         limit: Annotated[int, Parameter(ge=0, le=50)] = 5,
         offset: Annotated[int, Parameter(ge=0)] = 0,
     ) -> list[dict[str, Any]]:
-        user: User | None = await user_service.get_one_or_none(login=login)
+        user = await user_service.get_one_or_none(login=login)
         if user is None:
             raise NotFoundException("User not found")
 

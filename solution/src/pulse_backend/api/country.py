@@ -1,10 +1,9 @@
 from typing import Annotated, Any
 
-import advanced_alchemy
-import litestar
 from advanced_alchemy.filters import CollectionFilter, FilterTypes, OrderBy
 from litestar import Controller, get
 from litestar.di import Provide
+from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
 
 from pulse_backend.deps import provide_country_service
@@ -29,7 +28,6 @@ class CountryController(Controller):
             filters.append(
                 CollectionFilter(field_name="region", values=region)
             )
-
         countries = await country_service.list(*filters)
         return [
             Country.model_validate(country).model_dump(exclude_none=True)
@@ -45,11 +43,7 @@ class CountryController(Controller):
             Parameter(max_length=2, pattern=r"[a-zA-Z]{2}"),
         ],
     ) -> dict[str, Any]:
-        try:
-            return Country.model_validate(
-                await country_service.get_one(alpha2=alpha2)
-            ).model_dump(exclude_none=True)
-        except advanced_alchemy.exceptions.NotFoundError as e:
-            raise litestar.exceptions.NotFoundException(
-                "Country not found"
-            ) from e
+        country = await country_service.get_one_or_none(alpha2=alpha2)
+        if country is None:
+            raise NotFoundException("Country not found")
+        return Country.model_validate(country).model_dump(exclude_none=True)

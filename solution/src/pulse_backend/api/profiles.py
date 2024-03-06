@@ -30,7 +30,7 @@ async def get_profile(
     user_service: UserService,
     friend_service: FriendService,
 ) -> dict[str, Any]:
-    user: User | None = await user_service.get_one_or_none(login=login)
+    user = await user_service.get_one_or_none(login=login)
     if user is None:
         raise PermissionDeniedException("User does not exist")
 

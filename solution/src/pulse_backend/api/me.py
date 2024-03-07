@@ -72,7 +72,7 @@ class MeController(Controller):
     ) -> dict[str, Any]:
         if bcrypt.checkpw(
             data.oldPassword.encode(encoding="utf-8"),
-            request.user.hashedPassword,
+            request.user.hashed_password,
         ):
             await token_service.revoke_user(request.user.login)
             await user_service.update(

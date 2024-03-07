@@ -8,7 +8,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-lint = ["ruff", "mypy"]
+lint = ["ruff", "mypy", "pylint", "pylint-pydantic"]
 
 [tool.pip-tools]
 generate-hashes = true
@@ -24,11 +24,26 @@ select = [
     "W",  # pycodestyle
     "C90",  # mccabe
     "I",  # isort
+    "N",  # pep8-naming
     "UP",  # pyupgrade
     "S",  # flake8-bandit
+    "B",  # flake8-bugbear
+    "A",  # flake8-builtins
+    "T20",  # flake8-print
+    "SIM",  # flake8-simplify
+    "ERA",  # eradicate
     "RUF",  # RUF
 ]
 
 [tool.mypy]
 python_version = "3.12"
 strict = true
+
+[tool.pylint.main]
+disable = [
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+]
+load-plugins = ["pylint_pydantic"]
+py-version = "3.12"

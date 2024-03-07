@@ -39,9 +39,9 @@ async def get_profile(
     )
 
     f = False
-    if user.isPublic is True:
+    if user.is_public is True:
         f = True
-    if user.isPublic is False:
+    if user.is_public is False:
         if user.login == request.user.login:
             f = True
         if isinstance(friend, Friend):

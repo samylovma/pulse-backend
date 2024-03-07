@@ -10,11 +10,11 @@ class BaseModel(pydantic.BaseModel):
 
 
 class CountryRegion(enum.StrEnum):
-    europe = "Europe"
-    africa = "Africa"
-    americas = "Americas"
-    oceania = "Oceania"
-    asia = "Asia"
+    EUROPE = "Europe"
+    AFRICA = "Africa"
+    AMERICAS = "Americas"
+    OCEANIA = "Oceania"
+    ASIA = "Asia"
 
 
 class Country(BaseModel):
@@ -27,8 +27,15 @@ class Country(BaseModel):
 class UserProfile(BaseModel):
     login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]
     email: Annotated[EmailStr, Field(min_length=1, max_length=50)]
-    countryCode: Annotated[str, Field(max_length=2, pattern=r"[a-zA-Z]{2}")]
-    isPublic: bool
+    country_code: Annotated[
+        str,
+        Field(
+            serialization_alias="countryCode",
+            max_length=2,
+            pattern=r"[a-zA-Z]{2}",
+        ),
+    ]
+    is_public: Annotated[bool, Field(serialization_alias="isPublic")]
     phone: Annotated[str | None, Field(max_length=20, pattern=r"\+[\d]+")] = (
         None
     )

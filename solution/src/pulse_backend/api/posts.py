@@ -57,45 +57,45 @@ class PostsController(Controller):
         request: Request[User, jwt.Token, Any],
         post_service: PostService,
     ) -> dict[str, Any]:
-        post = Post(
+        post_ = Post(
             id=uuid4(),
             content=data.content,
             author=request.user.login,
             tags=data.tags,
             createdAt=datetime.now(UTC),
         )
-        post = await post_service.create(post, auto_commit=True)
+        post_ = await post_service.create(post_, auto_commit=True)
         return {
-            "id": post.id,
-            "content": post.content,
-            "author": post.author,
-            "tags": post.tags,
-            "createdAt": post.createdAt.isoformat(),
-            "likesCount": post.likesCount,
-            "dislikesCount": post.dislikesCount,
+            "id": post_.id,
+            "content": post_.content,
+            "author": post_.author,
+            "tags": post_.tags,
+            "createdAt": post_.createdAt.isoformat(),
+            "likesCount": post_.likesCount,
+            "dislikesCount": post_.dislikesCount,
         }
 
-    @get("/api/posts/{postId:str}")
+    @get("/api/posts/{postId:uuid}")
     async def get_post(
         self,
-        postId: UUID,
+        post_id: Annotated[UUID, Parameter(query="postId")],
         request: Request[User, jwt.Token, Any],
         post_service: PostService,
         friend_service: FriendService,
     ) -> dict[str, Any]:
-        post = await post_service.get_one_or_none(id=postId)
-        if post is None:
+        post_ = await post_service.get_one_or_none(id=post_id)
+        if post_ is None:
             raise NotFoundException("Post not found")
 
         friend: Friend | None = await friend_service.get_one_or_none(
-            of_login=post.author, login=request.user.login
+            of_login=post_.author, login=request.user.login
         )
 
         f = False
-        if post.user.isPublic is True:
+        if post_.user.is_public is True:
             f = True
-        if post.user.isPublic is False:
-            if request.user.login == post.author:
+        if post_.user.is_public is False:
+            if request.user.login == post_.author:
                 f = True
             if isinstance(friend, Friend):
                 f = True
@@ -104,13 +104,13 @@ class PostsController(Controller):
             raise NotFoundException("No access to post")
 
         return {
-            "id": post.id,
-            "content": post.content,
-            "author": post.author,
-            "tags": post.tags,
-            "createdAt": post.createdAt.isoformat(),
-            "likesCount": post.likesCount,
-            "dislikesCount": post.dislikesCount,
+            "id": post_.id,
+            "content": post_.content,
+            "author": post_.author,
+            "tags": post_.tags,
+            "createdAt": post_.createdAt.isoformat(),
+            "likesCount": post_.likesCount,
+            "dislikesCount": post_.dislikesCount,
         }
 
     @get(
@@ -169,9 +169,9 @@ class PostsController(Controller):
         )
 
         f = False
-        if user.isPublic is True:
+        if user.is_public is True:
             f = True
-        if user.isPublic is False:
+        if user.is_public is False:
             if user.login == request.user.login:
                 f = True
             if isinstance(friend, Friend):

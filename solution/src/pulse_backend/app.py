@@ -41,7 +41,7 @@ def create_app() -> Litestar:
                         username=getenv("POSTGRES_USERNAME", "postgres"),
                         password=getenv("POSTGRES_PASSWORD"),
                         host=getenv("POSTGRES_HOST", "localhost"),
-                        port=int(getenv("POSTGRES_PORT", 5432)),
+                        port=int(getenv("POSTGRES_PORT", "5432")),
                         database=getenv("POSTGRES_DATABASE", "postgres"),
                     ).render_as_string(hide_password=False)
                 )

@@ -1,3 +1,5 @@
+# pylint: disable=too-few-public-methods
+
 from datetime import datetime
 
 from advanced_alchemy.base import (
@@ -32,9 +34,9 @@ class User(BigIntBase):
         String(30), primary_key=True, unique=True
     )
     email: Mapped[str] = mapped_column(String(50), unique=True)
-    hashedPassword: Mapped[bytes]
-    countryCode: Mapped[str] = mapped_column(String(2))
-    isPublic: Mapped[bool]
+    hashed_password: Mapped[bytes]
+    country_code: Mapped[str] = mapped_column(String(2))
+    is_public: Mapped[bool]
     phone: Mapped[str | None] = mapped_column(String(20), unique=True)
     image: Mapped[str | None] = mapped_column(String(200))
 

@@ -44,6 +44,7 @@ select = [
 [tool.mypy]
 python_version = "3.12"
 strict = true
+plugins = ["pydantic.mypy"]
 
 [tool.pylint.main]
 disable = [

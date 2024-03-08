@@ -10,22 +10,27 @@ from litestar.exceptions import (
 )
 from litestar.status_codes import HTTP_200_OK, HTTP_409_CONFLICT
 
+from pulse_backend import sessions
 from pulse_backend.crypt import check_password, hash_password
-from pulse_backend.db_schema import User
-from pulse_backend.deps import (
+from pulse_backend.db.models import User
+from pulse_backend.dependencies import (
     provide_country_service,
-    provide_token_service,
+    provide_session_service,
     provide_user_service,
 )
 from pulse_backend.schema import RegisterUser, SignInUser, UserProfile
-from pulse_backend.services import CountryService, TokenService, UserService
+from pulse_backend.services import (
+    CountryService,
+    SessionService,
+    UserService,
+)
 
 
 class AuthController(Controller):
     dependencies = {  # noqa: RUF012
         "country_service": Provide(provide_country_service),
         "user_service": Provide(provide_user_service),
-        "token_service": Provide(provide_token_service),
+        "session_service": Provide(provide_session_service),
     }
 
     @post("/api/auth/register")
@@ -36,7 +41,7 @@ class AuthController(Controller):
         user_service: UserService,
     ) -> dict[str, Any]:
         country = await country_service.get_one_or_none(
-            alpha2=data.countryCode
+            alpha2=data.country_code
         )
         if country is None:
             raise ValidationException("Country not found")
@@ -45,8 +50,8 @@ class AuthController(Controller):
             login=data.login,
             email=data.email,
             hashed_password=hash_password(data.password),
-            country_code=data.countryCode,
-            is_public=data.isPublic,
+            country_code=data.country_code,
+            is_public=data.is_public,
             phone=data.phone,
             image=data.image,
         )
@@ -65,12 +70,14 @@ class AuthController(Controller):
         self,
         data: SignInUser,
         user_service: UserService,
-        token_service: TokenService,
+        session_service: SessionService,
     ) -> dict[str, Any]:
         user = await user_service.get_one_or_none(login=data.login)
         if user is None:
             raise NotAuthorizedException("User doesn't exist")
         if not check_password(data.password, user.hashed_password):
             raise NotAuthorizedException("Invalid password")
-        token = await token_service.create_token(data.login)
+        token = await sessions.auth.create_token(
+            user_id=user.id, session_service=session_service
+        )
         return {"token": token}

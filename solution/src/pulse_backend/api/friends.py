@@ -7,11 +7,13 @@ from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.pagination import AbstractAsyncOffsetPaginator, OffsetPagination
 from litestar.params import Parameter
-from litestar.security import jwt
 from litestar.status_codes import HTTP_200_OK
 
-from pulse_backend.db_schema import Friend, User
-from pulse_backend.deps import provide_friend_service, provide_user_service
+from pulse_backend.db.models import Friend, Session, User
+from pulse_backend.dependencies import (
+    provide_friend_service,
+    provide_user_service,
+)
 from pulse_backend.schema import AddFriend
 from pulse_backend.services import FriendService, UserService
 
@@ -48,7 +50,7 @@ class FriendsController(Controller):
     async def add_friend(
         self,
         data: AddFriend,
-        request: Request[User, jwt.Token, Any],
+        request: Request[User, Session, Any],
         user_service: UserService,
         friend_service: FriendService,
     ) -> dict[str, Any]:
@@ -80,8 +82,7 @@ class FriendsController(Controller):
     async def remove_friend(
         self,
         data: AddFriend,
-        request: Request[User, jwt.Token, Any],
-        user_service: UserService,
+        request: Request[User, Session, Any],
         friend_service: FriendService,
     ) -> dict[str, Any]:
         friend: Friend | None = await friend_service.get_one_or_none(
@@ -97,7 +98,7 @@ class FriendsController(Controller):
     )
     async def list_friends(
         self,
-        request: Request[User, jwt.Token, Any],
+        request: Request[User, Session, Any],
         paginator: FriendsOffsetPaginator,
         limit: Annotated[int, Parameter(ge=0, le=50)] = 5,
         offset: Annotated[int, Parameter(ge=0)] = 0,

@@ -1,6 +1,5 @@
 from typing import Any
 
-import bcrypt
 from advanced_alchemy.exceptions import IntegrityError
 from litestar import Controller, Request, get, patch, post, status_codes
 from litestar.di import Provide
@@ -11,22 +10,24 @@ from litestar.exceptions import (
 )
 from litestar.security.jwt import Token
 from litestar.status_codes import HTTP_200_OK
+from sqlalchemy import delete
 
-from pulse_backend.db_schema import User
-from pulse_backend.deps import (
+from pulse_backend.crypt import check_password
+from pulse_backend.db.models import Session, User
+from pulse_backend.dependencies import (
     provide_country_service,
-    provide_token_service,
+    provide_session_service,
     provide_user_service,
 )
 from pulse_backend.schema import UpdatePassword, UpdateUser, UserProfile
-from pulse_backend.services import CountryService, TokenService, UserService
+from pulse_backend.services import CountryService, SessionService, UserService
 
 
 class MeController(Controller):
     dependencies = {  # noqa: RUF012
         "country_service": Provide(provide_country_service),
         "user_service": Provide(provide_user_service),
-        "token_service": Provide(provide_token_service),
+        "session_service": Provide(provide_session_service),
     }
 
     @get("/api/me/profile")
@@ -68,17 +69,17 @@ class MeController(Controller):
         data: UpdatePassword,
         request: Request[User, Token, Any],
         user_service: UserService,
-        token_service: TokenService,
+        session_service: SessionService,
     ) -> dict[str, Any]:
-        if bcrypt.checkpw(
-            data.oldPassword.encode(encoding="utf-8"),
-            request.user.hashed_password,
-        ):
-            await token_service.revoke_user(request.user.login)
-            await user_service.update(
-                {"password": data.newPassword},
-                item_id=request.user.id,
-                auto_commit=True,
-            )
-            return {"status": "ok"}
-        raise PermissionDeniedException("Invalid password")
+        if not check_password(data.oldPassword, request.user.hashed_password):
+            raise PermissionDeniedException("Invalid password")
+        await session_service.repository.session.execute(
+            delete(Session).where(Session.user_id == request.user.id)
+        )
+        await session_service.repository.session.commit()
+        await user_service.update(
+            {"password": data.newPassword},
+            item_id=request.user.id,
+            auto_commit=True,
+        )
+        return {"status": "ok"}

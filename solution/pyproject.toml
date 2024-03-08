@@ -8,7 +8,13 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-lint = ["ruff", "mypy", "pylint", "pylint-pydantic"]
+lint = [
+    "ruff",
+    "mypy",
+    "types-python-jose",
+    "pylint",
+    "pylint-pydantic",
+]
 
 [tool.pip-tools]
 generate-hashes = true

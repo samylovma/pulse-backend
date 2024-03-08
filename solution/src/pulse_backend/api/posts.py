@@ -11,8 +11,8 @@ from litestar.params import Parameter
 from litestar.security import jwt
 from litestar.status_codes import HTTP_200_OK
 
-from pulse_backend.db_schema import Friend, Post, User
-from pulse_backend.deps import (
+from pulse_backend.db.models import Friend, Post, User
+from pulse_backend.dependencies import (
     provide_friend_service,
     provide_post_service,
     provide_user_service,

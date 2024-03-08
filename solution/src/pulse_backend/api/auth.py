@@ -1,3 +1,4 @@
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 from advanced_alchemy.exceptions import IntegrityError
@@ -12,7 +13,7 @@ from litestar.status_codes import HTTP_200_OK, HTTP_409_CONFLICT
 
 from pulse_backend import sessions
 from pulse_backend.crypt import check_password, hash_password
-from pulse_backend.db.models import User
+from pulse_backend.db.models import Session, User
 from pulse_backend.dependencies import (
     provide_country_service,
     provide_session_service,
@@ -77,7 +78,9 @@ class AuthController(Controller):
             raise NotAuthorizedException("User doesn't exist")
         if not check_password(data.password, user.hashed_password):
             raise NotAuthorizedException("Invalid password")
-        token = await sessions.auth.create_token(
-            user_id=user.id, session_service=session_service
+        session = Session(
+            exp=(datetime.now(UTC) + timedelta(hours=1)), user_id=user.id
         )
+        token = sessions.auth.create_token(session)
+        await session_service.create(session, auto_commit=True)
         return {"token": token}

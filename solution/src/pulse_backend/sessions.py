@@ -1,9 +1,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime, timedelta
 from os import getenv
 from typing import Any
-from uuid import uuid4
 
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
@@ -24,7 +22,6 @@ from litestar.types import ASGIApp, Method, Scopes
 
 from pulse_backend.db.models import Session, User
 from pulse_backend.dependencies import provide_session_service
-from pulse_backend.services import SessionService
 
 
 class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
@@ -113,19 +110,13 @@ class JWTSessionAuthentication(AbstractSecurityConfig[User, Session]):
             token_secret=self.token_secret,
         )
 
-    async def create_token(
-        self, user_id: int, session_service: SessionService
-    ) -> str:
-        id_ = uuid4()
+    def create_token(self, session: Session) -> str:
         token = jwt.encode(
             claims={
-                "jti": str(id_),
-                "exp": (datetime.now(UTC) + timedelta(hours=24)).timestamp(),
+                "jti": str(session.id),
+                "exp": session.exp.timestamp(),
             },
             key=self.token_secret,
-        )
-        await session_service.create(
-            Session(id=id_, user_id=user_id), auto_commit=True
         )
         return token
 

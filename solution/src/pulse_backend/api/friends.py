@@ -5,7 +5,6 @@ from advanced_alchemy.filters import LimitOffset, OrderBy
 from litestar import Controller, Request, get, post
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
-from litestar.pagination import AbstractAsyncOffsetPaginator, OffsetPagination
 from litestar.params import Parameter
 from litestar.status_codes import HTTP_200_OK
 
@@ -16,28 +15,6 @@ from pulse_backend.dependencies import (
 )
 from pulse_backend.schema import AddFriend
 from pulse_backend.services import FriendService, UserService
-
-
-class FriendsOffsetPaginator(AbstractAsyncOffsetPaginator[Friend]):
-    def __init__(self, friend_service: FriendService) -> None:
-        self.friend_service = friend_service
-
-    async def __call__(  # type: ignore[override]
-        self, limit: int, offset: int, of_login: str
-    ) -> OffsetPagination[Friend]:
-        self.of_login = of_login
-        return await super().__call__(limit=limit, offset=offset)
-
-    async def get_total(self) -> int:
-        return await self.friend_service.count()
-
-    async def get_items(self, limit: int, offset: int) -> list[Friend]:
-        friends = await self.friend_service.list(
-            OrderBy(field_name="addedAt", sort_order="desc"),
-            LimitOffset(limit=limit, offset=offset),
-            of_login=self.of_login,
-        )
-        return list(friends)
 
 
 class FriendsController(Controller):
@@ -92,21 +69,20 @@ class FriendsController(Controller):
             await friend_service.delete(friend.id, auto_commit=True)
         return {"status": "ok"}
 
-    @get(
-        "/api/friends",
-        dependencies={"paginator": Provide(FriendsOffsetPaginator)},
-    )
+    @get("/api/friends")
     async def list_friends(
         self,
         request: Request[User, Session, Any],
-        paginator: FriendsOffsetPaginator,
+        friend_service: FriendService,
         limit: Annotated[int, Parameter(ge=0, le=50)] = 5,
         offset: Annotated[int, Parameter(ge=0)] = 0,
     ) -> list[dict[str, Any]]:
-        result = await paginator(
-            limit=limit, offset=offset, of_login=request.user.login
+        friends = await friend_service.list(
+            OrderBy(field_name="addedAt", sort_order="desc"),
+            LimitOffset(limit=limit, offset=offset),
+            of_login=request.user.login,
         )
         return [
-            {"login": item.login, "addedAt": item.addedAt.isoformat()}
-            for item in result.items
+            {"login": friend.login, "addedAt": friend.addedAt.isoformat()}
+            for friend in friends
         ]

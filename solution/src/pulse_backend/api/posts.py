@@ -6,7 +6,6 @@ from advanced_alchemy.filters import LimitOffset, OrderBy
 from litestar import Controller, Request, get, post
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
-from litestar.pagination import AbstractAsyncOffsetPaginator, OffsetPagination
 from litestar.params import Parameter
 from litestar.security import jwt
 from litestar.status_codes import HTTP_200_OK
@@ -19,28 +18,6 @@ from pulse_backend.dependencies import (
 )
 from pulse_backend.schema import CreatePost
 from pulse_backend.services import FriendService, PostService, UserService
-
-
-class PostsOffsetPaginator(AbstractAsyncOffsetPaginator[Post]):
-    def __init__(self, post_service: PostService) -> None:
-        self.post_service = post_service
-
-    async def __call__(  # type: ignore[override]
-        self, limit: int, offset: int, author: str
-    ) -> OffsetPagination[Post]:
-        self.author = author
-        return await super().__call__(limit=limit, offset=offset)
-
-    async def get_total(self) -> int:
-        return await self.post_service.count()
-
-    async def get_items(self, limit: int, offset: int) -> list[Post]:
-        posts = await self.post_service.list(
-            OrderBy(field_name="createdAt", sort_order="desc"),
-            LimitOffset(limit=limit, offset=offset),
-            author=self.author,
-        )
-        return list(posts)
 
 
 class PostsController(Controller):
@@ -113,19 +90,18 @@ class PostsController(Controller):
             "dislikesCount": post_.dislikesCount,
         }
 
-    @get(
-        "/api/posts/feed/my",
-        dependencies={"paginator": Provide(PostsOffsetPaginator)},
-    )
+    @get("/api/posts/feed/my")
     async def feed_my(
         self,
         request: Request[User, jwt.Token, Any],
-        paginator: PostsOffsetPaginator,
+        post_service: PostService,
         limit: Annotated[int, Parameter(ge=0, le=50)] = 5,
         offset: Annotated[int, Parameter(ge=0)] = 0,
     ) -> list[dict[str, Any]]:
-        result = await paginator(
-            limit=limit, offset=offset, author=request.user.login
+        posts = await post_service.list(
+            OrderBy(field_name="createdAt", sort_order="desc"),
+            LimitOffset(limit=limit, offset=offset),
+            author=request.user.login,
         )
         return [
             {
@@ -137,13 +113,10 @@ class PostsController(Controller):
                 "likesCount": post_.likesCount,
                 "dislikesCount": post_.dislikesCount,
             }
-            for post_ in result.items
+            for post_ in posts
         ]
 
-    @get(
-        "/api/posts/feed/{login:str}",
-        dependencies={"paginator": Provide(PostsOffsetPaginator)},
-    )
+    @get("/api/posts/feed/{login:str}")
     async def feed_user(
         self,
         login: Annotated[
@@ -156,7 +129,7 @@ class PostsController(Controller):
         request: Request[User, jwt.Token, Any],
         user_service: UserService,
         friend_service: FriendService,
-        paginator: PostsOffsetPaginator,
+        post_service: PostService,
         limit: Annotated[int, Parameter(ge=0, le=50)] = 5,
         offset: Annotated[int, Parameter(ge=0)] = 0,
     ) -> list[dict[str, Any]]:
@@ -180,7 +153,11 @@ class PostsController(Controller):
         if f is False:
             raise NotFoundException("No access to user's posts")
 
-        result = await paginator(limit=limit, offset=offset, author=login)
+        posts = await post_service.list(
+            OrderBy(field_name="createdAt", sort_order="desc"),
+            LimitOffset(limit=limit, offset=offset),
+            author=login,
+        )
         return [
             {
                 "id": post_.id,
@@ -191,5 +168,5 @@ class PostsController(Controller):
                 "likesCount": post_.likesCount,
                 "dislikesCount": post_.dislikesCount,
             }
-            for post_ in result.items
+            for post_ in posts
         ]

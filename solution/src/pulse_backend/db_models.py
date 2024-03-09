@@ -11,9 +11,7 @@ from sqlalchemy import (
     ARRAY,
     TEXT,
     TIMESTAMP,
-    BigInteger,
     ForeignKey,
-    Sequence,
     String,
 )
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
@@ -36,9 +34,6 @@ class Country(Base):
 
 
 class User(Base):
-    id: Mapped[int] = mapped_column(
-        BigInteger(), Sequence("user_id_seq"), primary_key=True, unique=True
-    )
     login: Mapped[str] = mapped_column(
         String(30), primary_key=True, unique=True
     )
@@ -73,5 +68,5 @@ class Post(UUIDBase):
 
 class Session(UUIDBase):
     exp: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
-    user_id: Mapped[int] = mapped_column(ForeignKey(User.id))
+    user_login: Mapped[int] = mapped_column(ForeignKey(User.login))
     user: Mapped[User] = relationship(lazy="joined")

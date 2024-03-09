@@ -58,13 +58,14 @@ class AuthController(Controller):
         )
         try:
             user = await user_service.create(user, auto_commit=True)
-            return {
-                "profile": UserProfile.model_validate(user).model_dump(
-                    exclude_none=True
-                )
-            }
         except IntegrityError as e:
             raise ClientException(status_code=HTTP_409_CONFLICT) from e
+
+        return {
+            "profile": UserProfile.model_validate(user).model_dump(
+                exclude_none=True
+            )
+        }
 
     @post("/api/auth/sign-in", status_code=HTTP_200_OK)
     async def sign_in(
@@ -79,7 +80,7 @@ class AuthController(Controller):
         if not check_password(data.password, user.hashed_password):
             raise NotAuthorizedException("Invalid password")
         session = Session(
-            exp=(datetime.now(UTC) + timedelta(hours=1)), user_id=user.id
+            exp=(datetime.now(UTC) + timedelta(hours=1)), user_login=user.login
         )
         await session_service.create(session, auto_commit=True)
         token = sessions.auth.create_token(session)

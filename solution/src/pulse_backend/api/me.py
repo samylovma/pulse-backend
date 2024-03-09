@@ -12,7 +12,7 @@ from litestar.security.jwt import Token
 from litestar.status_codes import HTTP_200_OK
 from sqlalchemy import delete
 
-from pulse_backend.crypt import check_password
+from pulse_backend.crypt import check_password, hash_password
 from pulse_backend.db_models import Session, User
 from pulse_backend.dependencies import (
     provide_country_service,
@@ -52,16 +52,15 @@ class MeController(Controller):
         try:
             user = await user_service.update(
                 data.model_dump(exclude_unset=True),
-                item_id=request.user.id,
+                item_id=request.user.login,
                 auto_commit=True,
-            )
-            return UserProfile.model_validate(user).model_dump(
-                exclude_none=True
             )
         except IntegrityError as e:
             raise ClientException(
                 status_code=status_codes.HTTP_409_CONFLICT
             ) from e
+
+        return UserProfile.model_validate(user).model_dump(exclude_none=True)
 
     @post("/api/me/updatePassword", status_code=HTTP_200_OK)
     async def update_password(
@@ -73,13 +72,13 @@ class MeController(Controller):
     ) -> dict[str, Any]:
         if not check_password(data.oldPassword, request.user.hashed_password):
             raise PermissionDeniedException("Invalid password")
+
         await session_service.repository.session.execute(
-            delete(Session).where(Session.user_id == request.user.id)
+            delete(Session).where(Session.user_login == request.user.login)
         )
         await session_service.repository.session.commit()
-        await user_service.update(
-            {"password": data.newPassword},
-            item_id=request.user.id,
-            auto_commit=True,
-        )
+
+        request.user.hashed_password = hash_password(data.newPassword)
+        await user_service.update(request.user, auto_commit=True)
+
         return {"status": "ok"}

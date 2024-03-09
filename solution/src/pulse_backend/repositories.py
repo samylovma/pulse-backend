@@ -9,6 +9,7 @@ class CountryRepository(SQLAlchemyAsyncRepository[Country]):
 
 class UserRepository(SQLAlchemyAsyncRepository[User]):
     model_type = User
+    id_attribute = "login"
 
 
 class FriendRepository(SQLAlchemyAsyncRepository[Friend]):

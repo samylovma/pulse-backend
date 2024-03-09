@@ -15,7 +15,7 @@ from litestar.middleware.authentication import (
 )
 from litestar.types import ASGIApp, Method, Scopes
 
-from pulse_backend.db.models import Session
+from pulse_backend.db_models import Session
 from pulse_backend.dependencies import provide_session_service
 
 

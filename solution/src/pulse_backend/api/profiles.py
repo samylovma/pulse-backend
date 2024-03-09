@@ -5,7 +5,7 @@ from litestar.exceptions import PermissionDeniedException
 from litestar.params import Parameter
 from litestar.security import jwt
 
-from pulse_backend.db.models import Friend, User
+from pulse_backend.db_models import Friend, User
 from pulse_backend.dependencies import (
     provide_friend_service,
     provide_user_service,

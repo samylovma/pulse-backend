@@ -13,7 +13,7 @@ from litestar.status_codes import HTTP_200_OK
 from sqlalchemy import delete
 
 from pulse_backend.crypt import check_password
-from pulse_backend.db.models import Session, User
+from pulse_backend.db_models import Session, User
 from pulse_backend.dependencies import (
     provide_country_service,
     provide_session_service,

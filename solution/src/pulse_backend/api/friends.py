@@ -8,7 +8,7 @@ from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
 from litestar.status_codes import HTTP_200_OK
 
-from pulse_backend.db.models import Friend, Session, User
+from pulse_backend.db_models import Friend, Session, User
 from pulse_backend.dependencies import (
     provide_friend_service,
     provide_user_service,

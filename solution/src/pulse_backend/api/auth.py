@@ -13,7 +13,7 @@ from litestar.status_codes import HTTP_200_OK, HTTP_409_CONFLICT
 
 from pulse_backend import sessions
 from pulse_backend.crypt import check_password, hash_password
-from pulse_backend.db.models import Session, User
+from pulse_backend.db_models import Session, User
 from pulse_backend.dependencies import (
     provide_country_service,
     provide_session_service,

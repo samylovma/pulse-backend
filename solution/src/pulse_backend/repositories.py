@@ -1,6 +1,6 @@
 from litestar.contrib.sqlalchemy.repository import SQLAlchemyAsyncRepository
 
-from pulse_backend.db.models import Country, Friend, Post, Session, User
+from pulse_backend.db_models import Country, Friend, Post, Session, User
 
 
 class CountryRepository(SQLAlchemyAsyncRepository[Country]):

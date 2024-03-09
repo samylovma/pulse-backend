@@ -1,6 +1,6 @@
 from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
 
-from pulse_backend.db.models import Country, Friend, Post, Session, User
+from pulse_backend.db_models import Country, Friend, Post, Session, User
 from pulse_backend.repositories import (
     CountryRepository,
     FriendRepository,

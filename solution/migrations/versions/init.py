@@ -1,16 +1,12 @@
-# type: ignore
 """init
 
-Revision ID: 61310e785863
+Revision ID: cefcaa33e00a
 Revises:
-Create Date: 2024-03-07 21:48:39.091400+00:00
+Create Date: 2024-03-09 11:11:42.350737+00:00
 
 """
 
-from __future__ import annotations
-
 import warnings
-from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from advanced_alchemy.types import (
@@ -21,11 +17,7 @@ from advanced_alchemy.types import (
     EncryptedText,
 )
 from alembic import op
-from sqlalchemy import Text  # noqa: F401
 from sqlalchemy.dialects import postgresql
-
-if TYPE_CHECKING:
-    pass
 
 __all__ = [
     "downgrade",
@@ -43,7 +35,7 @@ sa.EncryptedString = EncryptedString
 sa.EncryptedText = EncryptedText
 
 # revision identifiers, used by Alembic.
-revision = "61310e785863"
+revision = "cefcaa33e00a"
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -128,6 +120,7 @@ def schema_upgrades() -> None:
     op.create_table(
         "session",
         sa.Column("id", sa.GUID(length=16), nullable=False),
+        sa.Column("exp", sa.TIMESTAMP(timezone=True), nullable=False),
         sa.Column("user_id", sa.BigInteger(), nullable=False),
         sa.Column("sa_orm_sentinel", sa.Integer(), nullable=True),
         sa.ForeignKeyConstraint(

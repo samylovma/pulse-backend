@@ -81,6 +81,6 @@ class AuthController(Controller):
         session = Session(
             exp=(datetime.now(UTC) + timedelta(hours=1)), user_id=user.id
         )
-        token = sessions.auth.create_token(session)
         await session_service.create(session, auto_commit=True)
+        token = sessions.auth.create_token(session)
         return {"token": token}

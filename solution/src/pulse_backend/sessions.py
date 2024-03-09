@@ -1,4 +1,5 @@
 from collections.abc import Sequence
+from dataclasses import dataclass
 from os import getenv
 from typing import Any
 
@@ -69,20 +70,13 @@ class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
         return AuthenticationResult(user=session.user, auth=session)
 
 
+@dataclass(slots=True)
 class JWTSessionAuthentication:
-    def __init__(
-        self,
-        token_secret: str,
-        exclude: str | list[str] | None = None,
-        exclude_from_auth_key: str = "exclude_from_auth",
-        exclude_http_methods: Sequence[Method] | None = ("OPTIONS", "HEAD"),
-        scopes: Scopes | None = None,
-    ) -> None:
-        self.token_secret = token_secret
-        self.exclude = exclude
-        self.exclude_from_auth_key = exclude_from_auth_key
-        self.exclude_http_methods = exclude_http_methods
-        self.scopes = scopes
+    token_secret: str
+    exclude: str | list[str] | None = None
+    exclude_from_auth_key: str = "exclude_from_auth"
+    exclude_http_methods: Sequence[Method] | None = ("OPTIONS", "HEAD")
+    scopes: "Scopes | None" = None
 
     @property
     def middleware(self) -> DefineMiddleware:

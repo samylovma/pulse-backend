@@ -27,15 +27,8 @@ class Country(BaseModel):
 class UserProfile(BaseModel):
     login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]
     email: Annotated[EmailStr, Field(min_length=1, max_length=50)]
-    country_code: Annotated[
-        str,
-        Field(
-            serialization_alias="countryCode",
-            max_length=2,
-            pattern=r"[a-zA-Z]{2}",
-        ),
-    ]
-    is_public: Annotated[bool, Field(serialization_alias="isPublic")]
+    countryCode: Annotated[str, Field(max_length=2, pattern=r"[a-zA-Z]{2}")]
+    isPublic: bool
     phone: Annotated[str | None, Field(max_length=20, pattern=r"\+[\d]+")] = (
         None
     )
@@ -61,15 +54,8 @@ def validate_password(v: str) -> str:
 class RegisterUser(BaseModel):
     login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]
     email: Annotated[EmailStr, Field(min_length=1, max_length=50)]
-    country_code: Annotated[
-        str,
-        Field(
-            alias="countryCode",
-            max_length=2,
-            pattern=r"[a-zA-Z]{2}",
-        ),
-    ]
-    is_public: Annotated[bool, Field(alias="isPublic")]
+    countryCode: Annotated[str, Field(max_length=2, pattern=r"[a-zA-Z]{2}")]
+    isPublic: bool
     phone: Annotated[str | None, Field(max_length=20, pattern=r"\+[\d]+")] = (
         None
     )

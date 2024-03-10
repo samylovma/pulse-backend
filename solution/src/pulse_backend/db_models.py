@@ -39,8 +39,8 @@ class User(Base):
     )
     email: Mapped[str] = mapped_column(String(50), unique=True)
     hashed_password: Mapped[bytes]
-    country_code: Mapped[str] = mapped_column(String(2))
-    is_public: Mapped[bool]
+    countryCode: Mapped[str] = mapped_column(String(2))
+    isPublic: Mapped[bool]
     phone: Mapped[str | None] = mapped_column(String(20), unique=True)
     image: Mapped[str | None] = mapped_column(String(200))
 

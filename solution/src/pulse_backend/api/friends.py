@@ -13,7 +13,7 @@ from pulse_backend.dependencies import (
     provide_friend_service,
     provide_user_service,
 )
-from pulse_backend.schema import AddFriend
+from pulse_backend.schemas import AddFriend
 from pulse_backend.services import FriendService, UserService
 
 

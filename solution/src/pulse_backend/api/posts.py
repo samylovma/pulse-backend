@@ -16,7 +16,7 @@ from pulse_backend.dependencies import (
     provide_post_service,
     provide_user_service,
 )
-from pulse_backend.schema import CreatePost
+from pulse_backend.schemas import CreatePost
 from pulse_backend.services import FriendService, PostService, UserService
 
 
@@ -69,9 +69,9 @@ class PostsController(Controller):
         )
 
         f = False
-        if post_.user.is_public is True:
+        if post_.user.isPublic is True:
             f = True
-        if post_.user.is_public is False:
+        if post_.user.isPublic is False:
             if request.user.login == post_.author:
                 f = True
             if isinstance(friend, Friend):
@@ -142,9 +142,9 @@ class PostsController(Controller):
         )
 
         f = False
-        if user.is_public is True:
+        if user.isPublic is True:
             f = True
-        if user.is_public is False:
+        if user.isPublic is False:
             if user.login == request.user.login:
                 f = True
             if isinstance(friend, Friend):

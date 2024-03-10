@@ -10,7 +10,7 @@ from pulse_backend.dependencies import (
     provide_friend_service,
     provide_user_service,
 )
-from pulse_backend.schema import UserProfile
+from pulse_backend.schemas import UserProfile
 from pulse_backend.services import FriendService, UserService
 
 
@@ -42,9 +42,9 @@ async def get_profile(
     )
 
     f = False
-    if user.is_public is True:
+    if user.isPublic is True:
         f = True
-    if user.is_public is False:
+    if user.isPublic is False:
         if user.login == request.user.login:
             f = True
         if isinstance(friend, Friend):

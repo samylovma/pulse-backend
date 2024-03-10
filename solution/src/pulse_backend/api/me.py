@@ -19,7 +19,7 @@ from pulse_backend.dependencies import (
     provide_session_service,
     provide_user_service,
 )
-from pulse_backend.schema import UpdatePassword, UpdateUser, UserProfile
+from pulse_backend.schemas import UpdatePassword, UpdateUser, UserProfile
 from pulse_backend.services import CountryService, SessionService, UserService
 
 

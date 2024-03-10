@@ -7,7 +7,7 @@ from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
 
 from pulse_backend.dependencies import provide_country_service
-from pulse_backend.schema import Country, CountryRegion
+from pulse_backend.schemas import Country, CountryRegion
 from pulse_backend.services import CountryService
 
 

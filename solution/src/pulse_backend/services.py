@@ -23,8 +23,8 @@ class UserService(SQLAlchemyAsyncRepositoryService[User]):
     async def to_model(
         self, data: User | dict[str, Any], operation: str | None = None
     ) -> User:
-        if isinstance(data, dict) and "password" in data:
-            password = data.pop("password")
+        if isinstance(data, dict):
+            password = data.pop("password", None)
             if isinstance(password, str):
                 data["hashed_password"] = hash_password(password)
         return await super().to_model(data=data, operation=operation)

@@ -94,14 +94,13 @@ class JWTSessionAuthentication:
         return app_config
 
     def create_token(self, session: Session) -> str:
-        token = jwt.encode(
+        return jwt.encode(
             claims={
                 "jti": str(session.id),
                 "exp": session.exp.timestamp(),
             },
             key=self.token_secret,
         )
-        return token
 
 
 auth = JWTSessionAuthentication(

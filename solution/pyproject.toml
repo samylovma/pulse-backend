@@ -36,7 +36,11 @@ select = [
     "B",  # flake8-bugbear
     "A",  # flake8-builtins
     "T20",  # flake8-print
+    "RSE",  # flake8-raise
+    "RET",  # flake8-return
+    "SLOT",  # flake8-slots
     "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
     "ERA",  # eradicate
     "RUF",  # RUF
 ]

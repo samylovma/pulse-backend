@@ -1,4 +1,3 @@
-# type: ignore
 """init
 
 Revision ID: b26271a94417
@@ -7,10 +6,16 @@ Create Date: 2024-03-10 14:22:55.196280+00:00
 
 """
 
-from __future__ import annotations
+__all__ = (
+    "downgrade",
+    "upgrade",
+    "schema_upgrades",
+    "schema_downgrades",
+    "data_upgrades",
+    "data_downgrades",
+)
 
 import warnings
-from typing import TYPE_CHECKING
 
 import sqlalchemy as sa
 from advanced_alchemy.types import (
@@ -21,19 +26,6 @@ from advanced_alchemy.types import (
     EncryptedText,
 )
 from alembic import op
-from sqlalchemy import Text  # noqa: F401
-
-if TYPE_CHECKING:
-    pass
-
-__all__ = [
-    "downgrade",
-    "upgrade",
-    "schema_upgrades",
-    "schema_downgrades",
-    "data_upgrades",
-    "data_downgrades",
-]
 
 sa.GUID = GUID
 sa.DateTimeUTC = DateTimeUTC

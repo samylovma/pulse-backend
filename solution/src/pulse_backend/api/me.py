@@ -44,9 +44,11 @@ class MeController(Controller):
         country_service: CountryService,
         user_service: UserService,
     ) -> dict[str, Any]:
-        if data.countryCode:
-            country = await country_service.get_one(alpha2=data.countryCode)
-            if country is None:
+        if isinstance(data.countryCode, str):
+            is_country_exists = await country_service.exists(
+                alpha2=data.countryCode
+            )
+            if not is_country_exists:
                 raise ValidationException("Country not found")
 
         try:
@@ -73,9 +75,8 @@ class MeController(Controller):
         if not check_password(data.oldPassword, request.user.hashed_password):
             raise PermissionDeniedException("Invalid password")
 
-        await session_service.repository.session.execute(
-            delete(Session).where(Session.user_login == request.user.login)
-        )
+        stmt = delete(Session).where(Session.user_login == request.user.login)
+        await session_service.repository.session.execute(stmt)
         await session_service.repository.session.commit()
 
         request.user.hashed_password = hash_password(data.newPassword)

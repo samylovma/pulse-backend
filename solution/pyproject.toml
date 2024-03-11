@@ -47,9 +47,11 @@ select = [
     "RUF",  # RUF
 ]
 
+[tool.ruff.lint.isort]
+known-first-party = ["pulse_backend"]
+
 [tool.ruff.lint.per-file-ignores]
-"tests/unit/*" = ["S101"]
-"tests/integration/*" = ["S101"]
+"tests/*" = ["S101"]
 
 [tool.mypy]
 python_version = "3.12"

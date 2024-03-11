@@ -1,6 +1,7 @@
 from datetime import UTC, datetime
 from typing import Annotated, Any
 
+import sqlalchemy as sa
 from advanced_alchemy.filters import LimitOffset, OrderBy
 from litestar import Controller, Request, get, post
 from litestar.di import Provide
@@ -39,19 +40,14 @@ class FriendsController(Controller):
         if friend_user.login == request.user.login:
             return {"status": "ok"}
 
-        friend = await friend_service.get_one_or_none(
-            of_login=request.user.login, login=friend_user.login
+        friend = Friend(
+            of_login=request.user.login,
+            login=friend_user.login,
+            addedAt=datetime.now(UTC),
         )
-        if friend is None:
-            friend = Friend(
-                of_login=request.user.login,
-                login=friend_user.login,
-                addedAt=datetime.now(UTC),
-            )
-            await friend_service.create(friend, auto_commit=True)
-        else:
-            friend.addedAt = datetime.now(UTC)
-            await friend_service.update(friend, auto_commit=True)
+        await friend_service.upsert(
+            friend, match_fields=["of_login", "login"], auto_commit=True
+        )
 
         return {"status": "ok"}
 
@@ -62,11 +58,14 @@ class FriendsController(Controller):
         request: Request[User, Session, Any],
         friend_service: FriendService,
     ) -> dict[str, Any]:
-        friend: Friend | None = await friend_service.get_one_or_none(
-            of_login=request.user.login, login=data.login
+        # FIXME: Ignore if frinedship does not exist.
+        stmt = (
+            sa.delete(Friend)
+            .where(Friend.of_login == request.user.login)
+            .where(Friend.login == data.login)
         )
-        if isinstance(friend, Friend):
-            await friend_service.delete(friend.id, auto_commit=True)
+        await friend_service.repository.session.execute(stmt)
+        await friend_service.repository.session.commit()
         return {"status": "ok"}
 
     @get("/api/friends")

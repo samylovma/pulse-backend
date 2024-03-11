@@ -39,6 +39,7 @@ select = [
     "B",  # flake8-bugbear
     "A",  # flake8-builtins
     "T20",  # flake8-print
+    "PT",  # flake8-pytest-style
     "RSE",  # flake8-raise
     "RET",  # flake8-return
     "SLOT",  # flake8-slots
@@ -47,6 +48,10 @@ select = [
     "ERA",  # eradicate
     "RUF",  # RUF
 ]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/unit/*" = ["S101"]
+"tests/integration/*" = ["S101"]
 
 [tool.mypy]
 python_version = "3.12"

@@ -1,16 +1,20 @@
+FROM python:3.12.2-alpine3.19 as builder
+
+RUN pip install -U pip setuptools wheel && pip install pdm
+
+WORKDIR /app
+
+COPY pyproject.toml pdm.lock .
+COPY src src
+
+RUN pdm sync --prod --no-editable
+
+
 FROM python:3.12.2-alpine3.19
 
 WORKDIR /app
 
-RUN python -m venv ./venv
-
-COPY requirements.txt .
-RUN ./venv/bin/pip install --require-hashes --requirement=requirements.txt
-
-COPY pyproject.toml .
-COPY src src
-RUN ./venv/bin/pip install --no-deps .
-
+COPY --from=builder /app .
 COPY migrations migrations
 
 ENV LITESTAR_APP=pulse_backend:create_app

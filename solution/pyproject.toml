@@ -1,13 +1,14 @@
 [project]
 name = "pulse-backend"
 version = "0.1.0"
+requires-python = ">=3.12"
 dependencies = [
     "litestar[pydantic,jwt,sqlalchemy,standard]",
     "asyncpg",
     "bcrypt",
 ]
 
-[project.optional-dependencies]
+[tool.pdm.dev-dependencies]
 lint = [
     "ruff",
     "mypy",
@@ -18,9 +19,6 @@ lint = [
 test = [
     "pytest"
 ]
-
-[tool.pip-tools]
-generate-hashes = true
 
 [tool.ruff]
 line-length = 79

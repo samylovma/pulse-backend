@@ -15,6 +15,9 @@ lint = [
     "pylint",
     "pylint-pydantic",
 ]
+test = [
+    "pytest"
+]
 
 [tool.pip-tools]
 generate-hashes = true

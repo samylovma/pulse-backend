@@ -17,7 +17,8 @@ lint = [
     "pylint-pydantic",
 ]
 test = [
-    "pytest"
+    "pytest",
+    "pytest-asyncio",
 ]
 
 [tool.ruff]
@@ -66,3 +67,6 @@ disable = [
 ]
 load-plugins = ["pylint_pydantic"]
 py-version = "3.12"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"

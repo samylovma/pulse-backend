@@ -5,7 +5,7 @@
 groups = ["default", "lint", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:476c06569d155fa6e18a06c4839f991404a182fb496718ce9e756a01e33581f5"
+content_hash = "sha256:fdbaf4f7a8b93b982edd81b949cebcf11745d5799cde04113c77c45a56524dc8"
 
 [[package]]
 name = "advanced-alchemy"
@@ -889,6 +889,20 @@ dependencies = [
 files = [
     {file = "pytest-8.1.1-py3-none-any.whl", hash = "sha256:2a8386cfc11fa9d2c50ee7b2a57e7d898ef90470a7a34c4b949ff59662bb78b7"},
     {file = "pytest-8.1.1.tar.gz", hash = "sha256:ac978141a75948948817d360297b7aae0fcb9d6ff6bc9ec6d514b85d5a65c044"},
+]
+
+[[package]]
+name = "pytest-asyncio"
+version = "0.23.5.post1"
+requires_python = ">=3.8"
+summary = "Pytest support for asyncio"
+groups = ["test"]
+dependencies = [
+    "pytest<9,>=7.0.0",
+]
+files = [
+    {file = "pytest-asyncio-0.23.5.post1.tar.gz", hash = "sha256:b9a8806bea78c21276bc34321bbf234ba1b2ea5b30d9f0ce0f2dea45e4685813"},
+    {file = "pytest_asyncio-0.23.5.post1-py3-none-any.whl", hash = "sha256:30f54d27774e79ac409778889880242b0403d09cabd65b727ce90fe92dd5d80e"},
 ]
 
 [[package]]

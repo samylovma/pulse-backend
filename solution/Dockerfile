@@ -1,13 +1,13 @@
 FROM python:3.12.2-alpine3.19 as builder
 
-RUN pip install -U pip setuptools wheel && pip install pdm
+RUN python -m venv --upgrade-deps /opt/pdm && /opt/pdm/bin/pip install pdm
 
 WORKDIR /app
 
 COPY pyproject.toml pdm.lock .
 COPY src src
 
-RUN pdm sync --prod --no-editable
+RUN /opt/pdm/bin/pdm sync --prod --no-editable
 
 
 FROM python:3.12.2-alpine3.19

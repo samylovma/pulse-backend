@@ -19,6 +19,7 @@ from pulse_backend.db_models import Session
 from pulse_backend.dependencies import provide_session_service
 
 
+# pylint: disable=too-few-public-methods,too-many-arguments
 class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
     def __init__(
         self,

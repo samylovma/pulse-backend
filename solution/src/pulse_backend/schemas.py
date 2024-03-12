@@ -17,13 +17,6 @@ class CountryRegion(enum.StrEnum):
     ASIA = "Asia"
 
 
-class Country(BaseModel):
-    name: Annotated[str, Field(max_length=100)]
-    alpha2: Annotated[str, Field(max_length=2, pattern=r"[a-zA-Z]{2}")]
-    alpha3: Annotated[str, Field(max_length=3, pattern=r"[a-zA-Z]{3}")]
-    region: CountryRegion | str | None = None
-
-
 class UserProfile(BaseModel):
     login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]
     email: Annotated[EmailStr, Field(min_length=1, max_length=50)]

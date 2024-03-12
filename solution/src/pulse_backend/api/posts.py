@@ -7,10 +7,9 @@ from litestar import Controller, Request, get, post
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException
 from litestar.params import Parameter
-from litestar.security import jwt
 from litestar.status_codes import HTTP_200_OK
 
-from pulse_backend.db_models import Friend, Post, User
+from pulse_backend.db_models import Friend, Post, Session, User
 from pulse_backend.dependencies import (
     provide_friend_service,
     provide_post_service,
@@ -31,7 +30,7 @@ class PostsController(Controller):
     async def create_post(
         self,
         data: CreatePost,
-        request: Request[User, jwt.Token, Any],
+        request: Request[User, Session, Any],
         post_service: PostService,
     ) -> dict[str, Any]:
         post_ = Post(
@@ -56,7 +55,7 @@ class PostsController(Controller):
     async def get_post(
         self,
         post_id: Annotated[UUID, Parameter(query="postId")],
-        request: Request[User, jwt.Token, Any],
+        request: Request[User, Session, Any],
         post_service: PostService,
         friend_service: FriendService,
     ) -> dict[str, Any]:
@@ -69,9 +68,9 @@ class PostsController(Controller):
         )
 
         f = False
-        if post_.user.isPublic is True:
+        if post_.user.is_public is True:
             f = True
-        if post_.user.isPublic is False:
+        if post_.user.is_public is False:
             if request.user.login == post_.author:
                 f = True
             if isinstance(friend, Friend):
@@ -93,7 +92,7 @@ class PostsController(Controller):
     @get("/api/posts/feed/my")
     async def feed_my(
         self,
-        request: Request[User, jwt.Token, Any],
+        request: Request[User, Session, Any],
         post_service: PostService,
         limit: Annotated[int, Parameter(ge=0, le=50)] = 5,
         offset: Annotated[int, Parameter(ge=0)] = 0,
@@ -126,7 +125,7 @@ class PostsController(Controller):
                 pattern=r"[a-zA-Z0-9-]+",
             ),
         ],
-        request: Request[User, jwt.Token, Any],
+        request: Request[User, Session, Any],
         user_service: UserService,
         friend_service: FriendService,
         post_service: PostService,
@@ -142,9 +141,9 @@ class PostsController(Controller):
         )
 
         f = False
-        if user.isPublic is True:
+        if user.is_public is True:
             f = True
-        if user.isPublic is False:
+        if user.is_public is False:
             if user.login == request.user.login:
                 f = True
             if isinstance(friend, Friend):

@@ -10,7 +10,7 @@ from pulse_backend.dependencies import (
     provide_friend_service,
     provide_user_service,
 )
-from pulse_backend.schemas import UserProfile
+from pulse_backend.dto import UserDTO
 from pulse_backend.services import FriendService, UserService
 
 
@@ -20,6 +20,7 @@ from pulse_backend.services import FriendService, UserService
         "user_service": provide_user_service,
         "friend_service": provide_friend_service,
     },
+    return_dto=UserDTO,
 )
 async def get_profile(
     request: Request[User, jwt.Token, Any],
@@ -32,7 +33,7 @@ async def get_profile(
     ],
     user_service: UserService,
     friend_service: FriendService,
-) -> dict[str, Any]:
+) -> User:
     user = await user_service.get_one_or_none(login=login)
     if user is None:
         raise PermissionDeniedException("User does not exist")
@@ -42,9 +43,9 @@ async def get_profile(
     )
 
     f = False
-    if user.isPublic is True:
+    if user.is_public is True:
         f = True
-    if user.isPublic is False:
+    if user.is_public is False:
         if user.login == request.user.login:
             f = True
         if isinstance(friend, Friend):
@@ -53,4 +54,4 @@ async def get_profile(
     if f is False:
         raise PermissionDeniedException("No access to user profile")
 
-    return UserProfile.model_validate(user).model_dump(exclude_none=True)
+    return user

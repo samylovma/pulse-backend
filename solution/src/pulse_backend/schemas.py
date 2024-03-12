@@ -17,17 +17,6 @@ class CountryRegion(enum.StrEnum):
     ASIA = "Asia"
 
 
-class UserProfile(BaseModel):
-    login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]
-    email: Annotated[EmailStr, Field(min_length=1, max_length=50)]
-    countryCode: Annotated[str, Field(max_length=2, pattern=r"[a-zA-Z]{2}")]
-    isPublic: bool
-    phone: Annotated[str | None, Field(max_length=20, pattern=r"\+[\d]+")] = (
-        None
-    )
-    image: Annotated[str | None, Field(min_length=1, max_length=200)] = None
-
-
 def validate_password(v: str) -> str:
     digit = False
     upper_alpha = False
@@ -47,17 +36,19 @@ def validate_password(v: str) -> str:
 class RegisterUser(BaseModel):
     login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]
     email: Annotated[EmailStr, Field(min_length=1, max_length=50)]
-    countryCode: Annotated[str, Field(max_length=2, pattern=r"[a-zA-Z]{2}")]
-    isPublic: bool
-    phone: Annotated[str | None, Field(max_length=20, pattern=r"\+[\d]+")] = (
-        None
-    )
-    image: Annotated[str | None, Field(min_length=1, max_length=200)] = None
     password: Annotated[
         str,
         Field(min_length=6, max_length=100),
         AfterValidator(validate_password),
     ]
+    country_code: Annotated[
+        str, Field(alias="countryCode", max_length=2, pattern=r"[a-zA-Z]{2}")
+    ]
+    is_public: Annotated[bool, Field(alias="isPublic")]
+    phone: Annotated[str | None, Field(max_length=20, pattern=r"\+[\d]+")] = (
+        None
+    )
+    image: Annotated[str | None, Field(min_length=1, max_length=200)] = None
 
 
 class SignInUser(BaseModel):
@@ -70,10 +61,11 @@ class SignInUser(BaseModel):
 
 
 class UpdateUser(pydantic.BaseModel):
-    countryCode: Annotated[
-        str | None, Field(max_length=2, pattern=r"[a-zA-Z]{2}")
+    country_code: Annotated[
+        str | None,
+        Field(alias="countryCode", max_length=2, pattern=r"[a-zA-Z]{2}"),
     ] = None
-    isPublic: bool | None = None
+    is_public: Annotated[bool | None, Field(alias="isPublic")] = None
     phone: Annotated[str | None, Field(max_length=20, pattern=r"\+[\d]+")] = (
         None
     )

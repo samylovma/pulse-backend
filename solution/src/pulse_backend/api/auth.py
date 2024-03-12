@@ -1,5 +1,4 @@
 from datetime import UTC, datetime, timedelta
-from typing import Any
 
 from advanced_alchemy.exceptions import IntegrityError
 from litestar import Controller, post
@@ -13,13 +12,14 @@ from litestar.status_codes import HTTP_200_OK, HTTP_409_CONFLICT
 
 from pulse_backend import sessions
 from pulse_backend.crypt import check_password
-from pulse_backend.db_models import Session
+from pulse_backend.db_models import Session, User
 from pulse_backend.dependencies import (
     provide_country_service,
     provide_session_service,
     provide_user_service,
 )
-from pulse_backend.schemas import RegisterUser, SignInUser, UserProfile
+from pulse_backend.dto import UserDTO
+from pulse_backend.schemas import RegisterUser, SignInUser
 from pulse_backend.services import (
     CountryService,
     SessionService,
@@ -34,31 +34,23 @@ class AuthController(Controller):
         "session_service": Provide(provide_session_service),
     }
 
-    @post("/api/auth/register")
+    @post("/api/auth/register", return_dto=UserDTO)
     async def register(
         self,
         data: RegisterUser,
         country_service: CountryService,
         user_service: UserService,
-    ) -> dict[str, Any]:
-        is_country_exists = await country_service.exists(
-            alpha2=data.countryCode
-        )
-        if not is_country_exists:
+    ) -> dict[str, User]:
+        if not await country_service.exists(alpha2=data.country_code):
             raise ValidationException("Country not found")
-
         try:
             user = await user_service.create(
                 data.model_dump(), auto_commit=True
             )
         except IntegrityError as e:
             raise ClientException(status_code=HTTP_409_CONFLICT) from e
-
-        return {
-            "profile": UserProfile.model_validate(user).model_dump(
-                exclude_none=True
-            )
-        }
+        # TODO: Exclude null fields to follow the spec.
+        return {"profile": user}
 
     @post("/api/auth/sign-in", status_code=HTTP_200_OK)
     async def sign_in(
@@ -66,7 +58,7 @@ class AuthController(Controller):
         data: SignInUser,
         user_service: UserService,
         session_service: SessionService,
-    ) -> dict[str, Any]:
+    ) -> dict[str, str]:
         user = await user_service.get_one_or_none(login=data.login)
         if user is None:
             raise NotAuthorizedException("User doesn't exist")

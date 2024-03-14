@@ -53,16 +53,12 @@ def order_columns(
     }
     cols_by_key = [
         (
-            special_names.get(col.key, index)
-            if isinstance(col, Column)
-            else 2000,
+            special_names.get(col.key, index) if isinstance(col, Column) else 2000,
             col.copy(),  # type: ignore[attr-defined]
         )
         for index, col in enumerate(op.columns)
     ]
-    columns = [
-        col for _, col in sorted(cols_by_key, key=lambda entry: entry[0])
-    ]
+    columns = [col for _, col in sorted(cols_by_key, key=lambda entry: entry[0])]
     return ops.CreateTableOp(
         op.table_name,
         columns,

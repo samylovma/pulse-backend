@@ -7,9 +7,7 @@ import bcrypt
 
 
 def hash_password(password: str) -> bytes:
-    return bcrypt.hashpw(
-        password=_encode_password(password), salt=bcrypt.gensalt()
-    )
+    return bcrypt.hashpw(password=_encode_password(password), salt=bcrypt.gensalt())
 
 
 def check_password(password: str, hashed_password: bytes) -> bool:

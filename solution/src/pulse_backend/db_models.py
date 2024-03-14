@@ -34,9 +34,7 @@ class Country(Base):
 
 
 class User(Base):
-    login: Mapped[str] = mapped_column(
-        String(30), primary_key=True, unique=True
-    )
+    login: Mapped[str] = mapped_column(String(30), primary_key=True, unique=True)
     email: Mapped[str] = mapped_column(String(50), unique=True)
     hashed_password: Mapped[bytes]
     country_code: Mapped[str] = mapped_column(String(2))
@@ -46,12 +44,8 @@ class User(Base):
 
 
 class Friend(BigIntBase):
-    of_login: Mapped[str] = mapped_column(
-        ForeignKey(User.login), primary_key=True
-    )
-    login: Mapped[str] = mapped_column(
-        ForeignKey(User.login), primary_key=True
-    )
+    of_login: Mapped[str] = mapped_column(ForeignKey(User.login), primary_key=True)
+    login: Mapped[str] = mapped_column(ForeignKey(User.login), primary_key=True)
     addedAt: Mapped[datetime] = mapped_column(TIMESTAMP(timezone=True))
 
 

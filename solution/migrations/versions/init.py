@@ -92,9 +92,7 @@ def schema_upgrades() -> None:
         sa.ForeignKeyConstraint(
             ["of_login"], ["user.login"], name=op.f("fk_friend_of_login_user")
         ),
-        sa.PrimaryKeyConstraint(
-            "of_login", "login", "id", name=op.f("pk_friend")
-        ),
+        sa.PrimaryKeyConstraint("of_login", "login", "id", name=op.f("pk_friend")),
     )
     op.create_table(
         "post",

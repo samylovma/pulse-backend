@@ -67,12 +67,8 @@ def schema_upgrades() -> None:
         batch_op.add_column(
             sa.Column("country_code", sa.String(length=2), nullable=False)
         )
-        batch_op.add_column(
-            sa.Column("is_public", sa.Boolean(), nullable=False)
-        )
-        batch_op.create_unique_constraint(
-            batch_op.f("uq_user_login"), ["login"]
-        )
+        batch_op.add_column(sa.Column("is_public", sa.Boolean(), nullable=False))
+        batch_op.create_unique_constraint(batch_op.f("uq_user_login"), ["login"])
         batch_op.drop_column("isPublic")
         batch_op.drop_column("countryCode")
 
@@ -92,9 +88,7 @@ def schema_downgrades() -> None:
             )
         )
         batch_op.add_column(
-            sa.Column(
-                "isPublic", sa.BOOLEAN(), autoincrement=False, nullable=False
-            )
+            sa.Column("isPublic", sa.BOOLEAN(), autoincrement=False, nullable=False)
         )
         batch_op.drop_constraint(batch_op.f("uq_user_login"), type_="unique")
         batch_op.drop_column("is_public")

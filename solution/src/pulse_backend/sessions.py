@@ -46,9 +46,7 @@ class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
         if auth_header is None:
             raise NotAuthorizedException('No "Authorization" header')
         if auth_header[:6] != "Bearer":
-            raise NotAuthorizedException(
-                "The authentication scheme is not supported"
-            )
+            raise NotAuthorizedException("The authentication scheme is not supported")
 
         try:
             claims = jwt.decode(

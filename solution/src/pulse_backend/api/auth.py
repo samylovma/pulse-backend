@@ -44,9 +44,7 @@ class AuthController(Controller):
         if not await country_service.exists(alpha2=data.country_code):
             raise ValidationException("Country not found")
         try:
-            user = await user_service.create(
-                data.model_dump(), auto_commit=True
-            )
+            user = await user_service.create(data.model_dump(), auto_commit=True)
         except IntegrityError as e:
             raise ClientException(status_code=HTTP_409_CONFLICT) from e
         # TODO: Exclude null fields to follow the spec.

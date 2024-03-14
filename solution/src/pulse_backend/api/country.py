@@ -31,18 +31,14 @@ class CountryController(Controller):
         filters: list[FilterTypes] = []
         filters.append(OrderBy(field_name="alpha2", sort_order="asc"))
         if region:
-            filters.append(
-                CollectionFilter(field_name="region", values=region)
-            )
+            filters.append(CollectionFilter(field_name="region", values=region))
         return await country_service.list(*filters)
 
     @get("/api/countries/{alpha2:str}")
     async def get_country(
         self,
         country_service: CountryService,
-        alpha2: Annotated[
-            str, Parameter(max_length=2, pattern=r"[a-zA-Z]{2}")
-        ],
+        alpha2: Annotated[str, Parameter(max_length=2, pattern=r"[a-zA-Z]{2}")],
     ) -> Country:
         country = await country_service.get_one_or_none(alpha2=alpha2)
         if country is None:

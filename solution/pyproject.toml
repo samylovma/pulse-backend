@@ -54,14 +54,5 @@ python_version = "3.12"
 strict = true
 plugins = ["pydantic.mypy"]
 
-[tool.pylint.main]
-disable = [
-    "missing-module-docstring",
-    "missing-class-docstring",
-    "missing-function-docstring",
-]
-load-plugins = ["pylint_pydantic"]
-py-version = "3.12"
-
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

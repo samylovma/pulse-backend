@@ -1,4 +1,3 @@
-# pylint: disable=unsubscriptable-object,too-few-public-methods
 from datetime import datetime
 
 from advanced_alchemy.base import (

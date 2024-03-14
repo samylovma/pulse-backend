@@ -13,8 +13,6 @@ lint = [
     "ruff",
     "mypy",
     "types-python-jose",
-    "pylint",
-    "pylint-pydantic",
 ]
 test = [
     "pytest",

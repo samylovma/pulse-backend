@@ -25,26 +25,22 @@ test = [
 target-version = "py312"
 
 [tool.ruff.lint]
-select = [
-    "F",  # Pyflakes
-    "E",  # pycodestyle
-    "W",  # pycodestyle
-    "C90",  # mccabe
-    "I",  # isort
-    "N",  # pep8-naming
-    "UP",  # pyupgrade
-    "S",  # flake8-bandit
-    "B",  # flake8-bugbear
-    "A",  # flake8-builtins
-    "T20",  # flake8-print
-    "PT",  # flake8-pytest-style
-    "RSE",  # flake8-raise
-    "RET",  # flake8-return
-    "SLOT",  # flake8-slots
-    "SIM",  # flake8-simplify
-    "TCH",  # flake8-type-checking
-    "ERA",  # eradicate
-    "RUF",  # RUF
+select = ["ALL"]
+ignore = [
+    # Ruff formatter compatibility
+    "W191",
+    "E111", "E114", "E117",
+    "D206", "D300",
+    "Q000", "Q001", "Q002", "Q003",
+    "COM812", "COM819",
+    "ISC001", "ISC002",
+    # Conflicts
+    "D203", "D213",
+    # Allow missing docstrings
+    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
+    # Other ignores
+    "TD002",  # missing-todo-author
+    "TD003",  # missing-todo-link
 ]
 
 [tool.ruff.lint.isort]

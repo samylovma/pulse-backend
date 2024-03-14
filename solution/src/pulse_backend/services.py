@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Self
 
 from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
 
@@ -21,7 +21,7 @@ class UserService(SQLAlchemyAsyncRepositoryService[User]):
     repository_type = UserRepository
 
     async def to_model(
-        self, data: User | dict[str, Any], operation: str | None = None
+        self: Self, data: User | dict[str, Any], operation: str | None = None
     ) -> User:
         if isinstance(data, dict):
             password = data.pop("password", None)

@@ -29,7 +29,8 @@ def validate_password(v: str) -> str:
         if symbol.isalpha() and symbol.islower():
             lower_alpha = True
     if not (digit and upper_alpha and lower_alpha):
-        raise ValueError("Password does not meet the requirements")
+        msg = "Password does not meet the requirements"
+        raise ValueError(msg)
     return v
 
 

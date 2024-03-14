@@ -36,7 +36,8 @@ async def get_profile(
 ) -> User:
     user = await user_service.get_one_or_none(login=login)
     if user is None:
-        raise PermissionDeniedException("User does not exist")
+        msg = "User does not exist"
+        raise PermissionDeniedException(msg)
 
     friend: Friend | None = await friend_service.get_one_or_none(
         of_login=user.login, login=request.user.login
@@ -52,6 +53,7 @@ async def get_profile(
             f = True
 
     if f is False:
-        raise PermissionDeniedException("No access to user profile")
+        msg = "No access to user profile"
+        raise PermissionDeniedException(msg)
 
     return user

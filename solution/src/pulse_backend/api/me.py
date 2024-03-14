@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Self
 
 from advanced_alchemy.exceptions import IntegrityError
 from litestar import Controller, Request, get, patch, post
@@ -31,12 +31,12 @@ class MeController(Controller):
     }
 
     @get("/api/me/profile", return_dto=UserDTO)
-    async def get(self, request: Request[User, Session, Any]) -> User:
+    async def get(self: Self, request: Request[User, Session, Any]) -> User:
         return request.user
 
     @patch("/api/me/profile", status_code=HTTP_200_OK, return_dto=UserDTO)
     async def update(
-        self,
+        self: Self,
         data: UpdateUser,
         request: Request[User, Session, Any],
         country_service: CountryService,
@@ -45,7 +45,8 @@ class MeController(Controller):
         if isinstance(data.country_code, str) and not await country_service.exists(
             alpha2=data.country_code
         ):
-            raise ValidationException("Country not found")
+            msg = "Country not found"
+            raise ValidationException(msg)
         try:
             return await user_service.update(
                 data.model_dump(exclude_unset=True),
@@ -57,14 +58,15 @@ class MeController(Controller):
 
     @post("/api/me/updatePassword", status_code=HTTP_200_OK)
     async def update_password(
-        self,
+        self: Self,
         data: UpdatePassword,
         request: Request[User, Session, Any],
         user_service: UserService,
         session_service: SessionService,
     ) -> dict[str, str]:
         if not check_password(data.oldPassword, request.user.hashed_password):
-            raise PermissionDeniedException("Invalid password")
+            msg = "Invalid password"
+            raise PermissionDeniedException(msg)
 
         stmt = delete(Session).where(Session.user_login == request.user.login)
         await session_service.repository.session.execute(stmt)

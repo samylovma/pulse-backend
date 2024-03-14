@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Self
 
 import sqlalchemy as sa
 from advanced_alchemy.filters import LimitOffset, OrderBy
@@ -26,7 +26,7 @@ class FriendsController(Controller):
 
     @post("/api/friends/add", status_code=HTTP_200_OK)
     async def add_friend(
-        self,
+        self: Self,
         data: AddFriend,
         request: Request[User, Session, Any],
         user_service: UserService,
@@ -34,7 +34,8 @@ class FriendsController(Controller):
     ) -> dict[str, Any]:
         friend_user: User | None = await user_service.get_one_or_none(login=data.login)
         if friend_user is None:
-            raise NotFoundException("User not found")
+            msg = "User not found"
+            raise NotFoundException(msg)
         if friend_user.login == request.user.login:
             return {"status": "ok"}
 
@@ -51,12 +52,12 @@ class FriendsController(Controller):
 
     @post("/api/friends/remove", status_code=HTTP_200_OK)
     async def remove_friend(
-        self,
+        self: Self,
         data: AddFriend,
         request: Request[User, Session, Any],
         friend_service: FriendService,
     ) -> dict[str, Any]:
-        # FIXME: Ignore if frinedship does not exist.
+        # TODO: Ignore if frinedship does not exist.
         stmt = (
             sa.delete(Friend)
             .where(Friend.of_login == request.user.login)
@@ -68,7 +69,7 @@ class FriendsController(Controller):
 
     @get("/api/friends")
     async def list_friends(
-        self,
+        self: Self,
         request: Request[User, Session, Any],
         friend_service: FriendService,
         limit: Annotated[int, Parameter(ge=0, le=50)] = 5,

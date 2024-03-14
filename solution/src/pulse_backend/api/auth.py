@@ -1,4 +1,5 @@
 from datetime import UTC, datetime, timedelta
+from typing import Self
 
 from advanced_alchemy.exceptions import IntegrityError
 from litestar import Controller, post
@@ -36,13 +37,14 @@ class AuthController(Controller):
 
     @post("/api/auth/register", return_dto=UserDTO)
     async def register(
-        self,
+        self: Self,
         data: RegisterUser,
         country_service: CountryService,
         user_service: UserService,
     ) -> dict[str, User]:
         if not await country_service.exists(alpha2=data.country_code):
-            raise ValidationException("Country not found")
+            msg = "Country not found"
+            raise ValidationException(msg)
         try:
             user = await user_service.create(data.model_dump(), auto_commit=True)
         except IntegrityError as e:
@@ -52,16 +54,18 @@ class AuthController(Controller):
 
     @post("/api/auth/sign-in", status_code=HTTP_200_OK)
     async def sign_in(
-        self,
+        self: Self,
         data: SignInUser,
         user_service: UserService,
         session_service: SessionService,
     ) -> dict[str, str]:
         user = await user_service.get_one_or_none(login=data.login)
         if user is None:
-            raise NotAuthorizedException("User doesn't exist")
+            msg = "User doesn't exist"
+            raise NotAuthorizedException(msg)
         if not check_password(data.password, user.hashed_password):
-            raise NotAuthorizedException("Invalid password")
+            msg = "Invalid password"
+            raise NotAuthorizedException(msg)
         session = Session(
             exp=(datetime.now(UTC) + timedelta(hours=1)), user_login=user.login
         )

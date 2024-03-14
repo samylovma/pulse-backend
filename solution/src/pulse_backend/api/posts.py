@@ -1,5 +1,5 @@
 from datetime import UTC, datetime
-from typing import Annotated, Any
+from typing import Annotated, Any, Self
 from uuid import UUID, uuid4
 
 from advanced_alchemy.filters import LimitOffset, OrderBy
@@ -28,7 +28,7 @@ class PostsController(Controller):
 
     @post("/api/posts/new", status_code=HTTP_200_OK)
     async def create_post(
-        self,
+        self: Self,
         data: CreatePost,
         request: Request[User, Session, Any],
         post_service: PostService,
@@ -53,7 +53,7 @@ class PostsController(Controller):
 
     @get("/api/posts/{postId:uuid}")
     async def get_post(
-        self,
+        self: Self,
         post_id: Annotated[UUID, Parameter(query="postId")],
         request: Request[User, Session, Any],
         post_service: PostService,
@@ -61,7 +61,8 @@ class PostsController(Controller):
     ) -> dict[str, Any]:
         post_ = await post_service.get_one_or_none(id=post_id)
         if post_ is None:
-            raise NotFoundException("Post not found")
+            msg = "Post not found"
+            raise NotFoundException(msg)
 
         friend: Friend | None = await friend_service.get_one_or_none(
             of_login=post_.author, login=request.user.login
@@ -77,7 +78,8 @@ class PostsController(Controller):
                 f = True
 
         if f is False:
-            raise NotFoundException("No access to post")
+            msg = "No access to post"
+            raise NotFoundException(msg)
 
         return {
             "id": post_.id,
@@ -91,7 +93,7 @@ class PostsController(Controller):
 
     @get("/api/posts/feed/my")
     async def feed_my(
-        self,
+        self: Self,
         request: Request[User, Session, Any],
         post_service: PostService,
         limit: Annotated[int, Parameter(ge=0, le=50)] = 5,
@@ -116,8 +118,8 @@ class PostsController(Controller):
         ]
 
     @get("/api/posts/feed/{login:str}")
-    async def feed_user(
-        self,
+    async def feed_user(  # noqa: PLR0913
+        self: Self,
         login: Annotated[
             str,
             Parameter(
@@ -134,7 +136,8 @@ class PostsController(Controller):
     ) -> list[dict[str, Any]]:
         user = await user_service.get_one_or_none(login=login)
         if user is None:
-            raise NotFoundException("User not found")
+            msg = "User not found"
+            raise NotFoundException(msg)
 
         friend: Friend | None = await friend_service.get_one_or_none(
             of_login=user.login, login=request.user.login
@@ -150,7 +153,8 @@ class PostsController(Controller):
                 f = True
 
         if f is False:
-            raise NotFoundException("No access to user's posts")
+            msg = "No access to user's posts"
+            raise NotFoundException(msg)
 
         posts = await post_service.list(
             OrderBy(field_name="createdAt", sort_order="desc"),

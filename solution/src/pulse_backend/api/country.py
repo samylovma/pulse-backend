@@ -1,7 +1,7 @@
 __all__ = ("CountryController",)
 
 from collections.abc import Sequence
-from typing import Annotated
+from typing import Annotated, Self
 
 from advanced_alchemy.filters import CollectionFilter, FilterTypes, OrderBy
 from litestar import Controller, get
@@ -24,7 +24,7 @@ class CountryController(Controller):
 
     @get("/api/countries")
     async def list_countries(
-        self,
+        self: Self,
         country_service: CountryService,
         region: list[CountryRegion] | None = None,
     ) -> Sequence[Country]:
@@ -36,11 +36,12 @@ class CountryController(Controller):
 
     @get("/api/countries/{alpha2:str}")
     async def get_country(
-        self,
+        self: Self,
         country_service: CountryService,
         alpha2: Annotated[str, Parameter(max_length=2, pattern=r"[a-zA-Z]{2}")],
     ) -> Country:
         country = await country_service.get_one_or_none(alpha2=alpha2)
         if country is None:
-            raise NotFoundException("Country not found")
+            msg = "Country not found"
+            raise NotFoundException(msg)
         return country

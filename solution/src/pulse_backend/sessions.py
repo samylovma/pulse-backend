@@ -1,7 +1,7 @@
 from collections.abc import Sequence
 from dataclasses import dataclass
 from os import getenv
-from typing import Any
+from typing import Any, Self
 
 from jose import jwt
 from jose.exceptions import ExpiredSignatureError, JWTClaimsError, JWTError
@@ -21,8 +21,8 @@ from pulse_backend.dependencies import provide_session_service
 
 # pylint: disable=too-few-public-methods,too-many-arguments
 class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
-    def __init__(
-        self,
+    def __init__(  # noqa: PLR0913
+        self: Self,
         app: ASGIApp,
         exclude: str | list[str],
         exclude_from_auth_key: str,
@@ -40,13 +40,15 @@ class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
         self.token_secret = token_secret
 
     async def authenticate_request(
-        self, connection: ASGIConnection[Any, Any, Any, Any]
+        self: Self, connection: ASGIConnection[Any, Any, Any, Any]
     ) -> AuthenticationResult:
         auth_header = connection.headers.get("Authorization")
         if auth_header is None:
-            raise NotAuthorizedException('No "Authorization" header')
+            msg = 'No "Authorization" header'
+            raise NotAuthorizedException(msg)
         if auth_header[:6] != "Bearer":
-            raise NotAuthorizedException("The authentication scheme is not supported")
+            msg = "The authentication scheme is not supported"
+            raise NotAuthorizedException(msg)
 
         try:
             claims = jwt.decode(
@@ -56,7 +58,8 @@ class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
                 options={"require_jti": True, "require_exp": True},
             )
         except (JWTError, ExpiredSignatureError, JWTClaimsError) as e:
-            raise NotAuthorizedException("Invalid token") from e
+            msg = "Invalid token"
+            raise NotAuthorizedException(msg) from e
 
         db_session = await connection.app.dependencies["db_session"](
             state=connection.app.state, scope=connection.scope
@@ -64,7 +67,8 @@ class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
         session_service = await provide_session_service(db_session)
         session = await session_service.get_one_or_none(id=claims["jti"])
         if session is None:
-            raise NotAuthorizedException("Invalid token")
+            msg = "Invalid token"
+            raise NotAuthorizedException(msg)
 
         return AuthenticationResult(user=session.user, auth=session)
 
@@ -78,7 +82,7 @@ class JWTSessionAuthentication:
     scopes: "Scopes | None" = None
 
     @property
-    def middleware(self) -> DefineMiddleware:
+    def middleware(self: Self) -> DefineMiddleware:
         return DefineMiddleware(
             JWTSessionAuthenticationMiddleware,
             exclude=self.exclude,
@@ -88,11 +92,11 @@ class JWTSessionAuthentication:
             token_secret=self.token_secret,
         )
 
-    def on_app_init(self, app_config: AppConfig) -> AppConfig:
+    def on_app_init(self: Self, app_config: AppConfig) -> AppConfig:
         app_config.middleware.insert(0, self.middleware)
         return app_config
 
-    def create_token(self, session: Session) -> str:
+    def create_token(self: Self, session: Session) -> str:
         return jwt.encode(
             claims={
                 "jti": str(session.id),

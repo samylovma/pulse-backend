@@ -9,7 +9,6 @@ from litestar.exceptions import (
     ValidationException,
 )
 from litestar.status_codes import HTTP_200_OK, HTTP_409_CONFLICT
-from sqlalchemy import delete
 
 from pulse_backend.crypt import check_password, hash_password
 from pulse_backend.db_models import Session, User
@@ -66,9 +65,7 @@ class MeController(Controller):
             msg = "Invalid password"
             raise PermissionDeniedException(msg)
 
-        stmt = delete(Session).where(Session.user_login == request.user.login)
-        await session_service.repository.session.execute(stmt)
-        await session_service.repository.session.commit()
+        await session_service.deactivate(request.user.login)
 
         request.user.hashed_password = hash_password(data.newPassword)
         await user_service.update(request.user)

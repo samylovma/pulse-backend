@@ -1,6 +1,7 @@
 from typing import Any, Self
 
 from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
+from sqlalchemy import delete
 
 from pulse_backend.crypt import hash_password
 from pulse_backend.db_models import Country, Friend, Post, Session, User
@@ -40,3 +41,9 @@ class PostService(SQLAlchemyAsyncRepositoryService[Post]):
 
 class SessionService(SQLAlchemyAsyncRepositoryService[Session]):
     repository_type = SessionRepository
+
+    async def deactivate(self: Self, user_login: str) -> None:
+        await self.repository.session.execute(
+            delete(Session).where(Session.user_login == user_login)
+        )
+        await self.repository._flush_or_commit(auto_commit=None)

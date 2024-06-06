@@ -61,8 +61,7 @@ class PostsController(Controller):
     ) -> dict[str, Any]:
         post_ = await post_service.get_one_or_none(id=post_id)
         if post_ is None:
-            msg = "Post not found"
-            raise NotFoundException(msg)
+            raise NotFoundException("Post not found")
 
         friend: Friend | None = await friend_service.get_one_or_none(
             of_login=post_.author, login=request.user.login
@@ -78,8 +77,7 @@ class PostsController(Controller):
                 f = True
 
         if f is False:
-            msg = "No access to post"
-            raise NotFoundException(msg)
+            raise NotFoundException("No access to post")
 
         return {
             "id": post_.id,
@@ -136,8 +134,7 @@ class PostsController(Controller):
     ) -> list[dict[str, Any]]:
         user = await user_service.get_one_or_none(login=login)
         if user is None:
-            msg = "User not found"
-            raise NotFoundException(msg)
+            raise NotFoundException("User not found")
 
         friend: Friend | None = await friend_service.get_one_or_none(
             of_login=user.login, login=request.user.login
@@ -153,8 +150,7 @@ class PostsController(Controller):
                 f = True
 
         if f is False:
-            msg = "No access to user's posts"
-            raise NotFoundException(msg)
+            raise NotFoundException("No access to user's posts")
 
         posts = await post_service.list(
             OrderBy(field_name="createdAt", sort_order="desc"),

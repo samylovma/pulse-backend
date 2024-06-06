@@ -42,6 +42,5 @@ class CountryController(Controller):
     ) -> Country:
         country = await country_service.get_one_or_none(alpha2=alpha2)
         if country is None:
-            msg = "Country not found"
-            raise NotFoundException(msg)
+            raise NotFoundException("Country not found")
         return country

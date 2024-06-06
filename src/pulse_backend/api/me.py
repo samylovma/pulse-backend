@@ -44,8 +44,7 @@ class MeController(Controller):
         if isinstance(data.country_code, str) and not await country_service.exists(
             alpha2=data.country_code
         ):
-            msg = "Country not found"
-            raise ValidationException(msg)
+            raise ValidationException("Country not found")
         try:
             return await user_service.update(
                 data.model_dump(exclude_unset=True), item_id=request.user.login
@@ -62,8 +61,7 @@ class MeController(Controller):
         session_service: SessionService,
     ) -> dict[str, str]:
         if not check_password(data.oldPassword, request.user.hashed_password):
-            msg = "Invalid password"
-            raise PermissionDeniedException(msg)
+            raise PermissionDeniedException("Invalid password")
 
         await session_service.deactivate(request.user.login)
 

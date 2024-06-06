@@ -46,4 +46,4 @@ class SessionService(SQLAlchemyAsyncRepositoryService[Session]):
         await self.repository.session.execute(
             delete(Session).where(Session.user_login == user_login)
         )
-        await self.repository._flush_or_commit(auto_commit=None)
+        await self.repository._flush_or_commit(auto_commit=None)  # noqa: SLF001

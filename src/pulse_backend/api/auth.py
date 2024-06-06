@@ -43,8 +43,7 @@ class AuthController(Controller):
         user_service: UserService,
     ) -> dict[str, User]:
         if not await country_service.exists(alpha2=data.country_code):
-            msg = "Country not found"
-            raise ValidationException(msg)
+            raise ValidationException("Country not found")
         try:
             user = await user_service.create(data.model_dump())
         except IntegrityError as e:
@@ -60,11 +59,9 @@ class AuthController(Controller):
     ) -> dict[str, str]:
         user = await user_service.get_one_or_none(login=data.login)
         if user is None:
-            msg = "User doesn't exist"
-            raise NotAuthorizedException(msg)
+            raise NotAuthorizedException("User doesn't exist")
         if not check_password(data.password, user.hashed_password):
-            msg = "Invalid password"
-            raise NotAuthorizedException(msg)
+            raise NotAuthorizedException("Invalid password")
         session = Session(
             exp=(datetime.now(UTC) + timedelta(hours=1)), user_login=user.login
         )

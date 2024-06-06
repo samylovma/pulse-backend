@@ -25,20 +25,14 @@ target-version = "py312"
 [tool.ruff.lint]
 select = ["ALL"]
 ignore = [
-    # Ruff formatter compatibility
-    "W191",
-    "E111", "E114", "E117",
-    "D206", "D300",
-    "Q000", "Q001", "Q002", "Q003",
-    "COM812", "COM819",
-    "ISC001", "ISC002",
+    # Ruff Formatter compatibility
+    "W191", "E111", "E114", "E117", "D206", "D300", "Q000", "Q001", "Q002", "Q003", "COM812", "COM819", "ISC001", "ISC002",
+    # Allow missing docstrings
+    "D1",
     # Conflicts
     "D203", "D213",
-    # Allow missing docstrings
-    "D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107",
-    # Other ignores
-    "TD002",  # missing-todo-author
-    "TD003",  # missing-todo-link
+    # Other
+    "TD002", "TD003", "FIX002", "EM101", "TRY003"
 ]
 
 [tool.ruff.lint.isort]

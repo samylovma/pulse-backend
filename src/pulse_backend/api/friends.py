@@ -34,8 +34,7 @@ class FriendsController(Controller):
     ) -> dict[str, Any]:
         friend_user: User | None = await user_service.get_one_or_none(login=data.login)
         if friend_user is None:
-            msg = "User not found"
-            raise NotFoundException(msg)
+            raise NotFoundException("User not found")
         if friend_user.login == request.user.login:
             return {"status": "ok"}
 

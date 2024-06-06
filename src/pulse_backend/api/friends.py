@@ -44,9 +44,7 @@ class FriendsController(Controller):
             login=friend_user.login,
             addedAt=datetime.now(UTC),
         )
-        await friend_service.upsert(
-            friend, match_fields=["of_login", "login"], auto_commit=True
-        )
+        await friend_service.upsert(friend, match_fields=["of_login", "login"])
 
         return {"status": "ok"}
 
@@ -57,7 +55,6 @@ class FriendsController(Controller):
         request: Request[User, Session, Any],
         friend_service: FriendService,
     ) -> dict[str, Any]:
-        # TODO: Ignore if frinedship does not exist.
         stmt = (
             sa.delete(Friend)
             .where(Friend.of_login == request.user.login)

@@ -46,10 +46,9 @@ class AuthController(Controller):
             msg = "Country not found"
             raise ValidationException(msg)
         try:
-            user = await user_service.create(data.model_dump(), auto_commit=True)
+            user = await user_service.create(data.model_dump())
         except IntegrityError as e:
             raise ClientException(status_code=HTTP_409_CONFLICT) from e
-        # TODO: Exclude null fields to follow the spec.
         return {"profile": user}
 
     @post("/api/auth/sign-in", status_code=HTTP_200_OK)
@@ -69,6 +68,6 @@ class AuthController(Controller):
         session = Session(
             exp=(datetime.now(UTC) + timedelta(hours=1)), user_login=user.login
         )
-        await session_service.create(session, auto_commit=True)
+        await session_service.create(session)
         token = sessions.auth.create_token(session)
         return {"token": token}

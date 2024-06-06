@@ -40,7 +40,7 @@ class PostsController(Controller):
             tags=data.tags,
             createdAt=datetime.now(UTC),
         )
-        post_ = await post_service.create(post_, auto_commit=True)
+        post_ = await post_service.create(post_)
         return {
             "id": post_.id,
             "content": post_.content,

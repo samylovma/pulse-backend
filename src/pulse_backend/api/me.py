@@ -49,9 +49,7 @@ class MeController(Controller):
             raise ValidationException(msg)
         try:
             return await user_service.update(
-                data.model_dump(exclude_unset=True),
-                item_id=request.user.login,
-                auto_commit=True,
+                data.model_dump(exclude_unset=True), item_id=request.user.login
             )
         except IntegrityError as e:
             raise ClientException(status_code=HTTP_409_CONFLICT) from e
@@ -73,6 +71,6 @@ class MeController(Controller):
         await session_service.repository.session.commit()
 
         request.user.hashed_password = hash_password(data.newPassword)
-        await user_service.update(request.user, auto_commit=True)
+        await user_service.update(request.user)
 
         return {"status": "ok"}

@@ -38,9 +38,7 @@ class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
         )
         self.token_secret = token_secret
 
-    async def authenticate_request(
-        self: Self, connection: ASGIConnection[Any, Any, Any, Any]
-    ) -> AuthenticationResult:
+    async def authenticate_request(self: Self, connection: ASGIConnection[Any, Any, Any, Any]) -> AuthenticationResult:
         auth_header = connection.headers.get("Authorization")
         if auth_header is None:
             msg = 'No "Authorization" header'
@@ -60,9 +58,7 @@ class JWTSessionAuthenticationMiddleware(AbstractAuthenticationMiddleware):
             msg = "Invalid token"
             raise NotAuthorizedException(msg) from e
 
-        db_session = await connection.app.dependencies["db_session"](
-            state=connection.app.state, scope=connection.scope
-        )
+        db_session = await connection.app.dependencies["db_session"](state=connection.app.state, scope=connection.scope)
         session_service = await provide_session_service(db_session)
         session = await session_service.get_one_or_none(id=claims["jti"])
         if session is None:
@@ -96,13 +92,7 @@ class JWTSessionAuthentication:
         return app_config
 
     def create_token(self: Self, session: Session) -> str:
-        return jwt.encode(
-            claims={
-                "jti": str(session.id),
-                "exp": session.exp.timestamp(),
-            },
-            key=self.token_secret,
-        )
+        return jwt.encode(claims={"jti": str(session.id), "exp": session.exp.timestamp()}, key=self.token_secret)
 
 
 auth = JWTSessionAuthentication(

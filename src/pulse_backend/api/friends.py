@@ -54,11 +54,7 @@ class FriendsController(Controller):
         request: Request[User, Session, Any],
         friend_service: FriendService,
     ) -> dict[str, Any]:
-        stmt = (
-            sa.delete(Friend)
-            .where(Friend.of_login == request.user.login)
-            .where(Friend.login == data.login)
-        )
+        stmt = sa.delete(Friend).where(Friend.of_login == request.user.login).where(Friend.login == data.login)
         await friend_service.repository.session.execute(stmt)
         await friend_service.repository.session.commit()
         return {"status": "ok"}
@@ -76,7 +72,4 @@ class FriendsController(Controller):
             LimitOffset(limit=limit, offset=offset),
             of_login=request.user.login,
         )
-        return [
-            {"login": friend.login, "addedAt": friend.addedAt.isoformat()}
-            for friend in friends
-        ]
+        return [{"login": friend.login, "addedAt": friend.addedAt.isoformat()} for friend in friends]

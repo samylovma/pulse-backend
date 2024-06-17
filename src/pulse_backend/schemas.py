@@ -37,14 +37,8 @@ def validate_password(v: str) -> str:
 class RegisterUser(BaseModel):
     login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]
     email: Annotated[EmailStr, Field(min_length=1, max_length=50)]
-    password: Annotated[
-        str,
-        Field(min_length=6, max_length=100),
-        AfterValidator(validate_password),
-    ]
-    country_code: Annotated[
-        str, Field(alias="countryCode", max_length=2, pattern=r"[a-zA-Z]{2}")
-    ]
+    password: Annotated[str, Field(min_length=6, max_length=100), AfterValidator(validate_password)]
+    country_code: Annotated[str, Field(alias="countryCode", max_length=2, pattern=r"[a-zA-Z]{2}")]
     is_public: Annotated[bool, Field(alias="isPublic")]
     phone: Annotated[str | None, Field(max_length=20, pattern=r"\+[\d]+")] = None
     image: Annotated[str | None, Field(min_length=1, max_length=200)] = None
@@ -52,11 +46,7 @@ class RegisterUser(BaseModel):
 
 class SignInUser(BaseModel):
     login: Annotated[str, Field(max_length=30, pattern=r"[a-zA-Z0-9-]+")]
-    password: Annotated[
-        str,
-        Field(min_length=6, max_length=100),
-        AfterValidator(validate_password),
-    ]
+    password: Annotated[str, Field(min_length=6, max_length=100), AfterValidator(validate_password)]
 
 
 class UpdateUser(pydantic.BaseModel):
@@ -70,16 +60,8 @@ class UpdateUser(pydantic.BaseModel):
 
 
 class UpdatePassword(BaseModel):
-    oldPassword: Annotated[
-        str,
-        Field(min_length=6, max_length=100),
-        AfterValidator(validate_password),
-    ]
-    newPassword: Annotated[
-        str,
-        Field(min_length=6, max_length=100),
-        AfterValidator(validate_password),
-    ]
+    oldPassword: Annotated[str, Field(min_length=6, max_length=100), AfterValidator(validate_password)]
+    newPassword: Annotated[str, Field(min_length=6, max_length=100), AfterValidator(validate_password)]
 
 
 class AddFriend(BaseModel):

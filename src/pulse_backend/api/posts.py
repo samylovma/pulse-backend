@@ -63,9 +63,7 @@ class PostsController(Controller):
         if post_ is None:
             raise NotFoundException("Post not found")
 
-        friend: Friend | None = await friend_service.get_one_or_none(
-            of_login=post_.author, login=request.user.login
-        )
+        friend: Friend | None = await friend_service.get_one_or_none(of_login=post_.author, login=request.user.login)
 
         f = False
         if post_.user.is_public is True:
@@ -136,9 +134,7 @@ class PostsController(Controller):
         if user is None:
             raise NotFoundException("User not found")
 
-        friend: Friend | None = await friend_service.get_one_or_none(
-            of_login=user.login, login=request.user.login
-        )
+        friend: Friend | None = await friend_service.get_one_or_none(of_login=user.login, login=request.user.login)
 
         f = False
         if user.is_public is True:

@@ -16,21 +16,12 @@ from pulse_backend.services import FriendService, UserService
 
 @get(
     "/api/profiles/{login:str}",
-    dependencies={
-        "user_service": provide_user_service,
-        "friend_service": provide_friend_service,
-    },
+    dependencies={"user_service": provide_user_service, "friend_service": provide_friend_service},
     return_dto=UserDTO,
 )
 async def get_profile(
     request: Request[User, jwt.Token, Any],
-    login: Annotated[
-        str,
-        Parameter(
-            max_length=30,
-            pattern=r"[a-zA-Z0-9-]+",
-        ),
-    ],
+    login: Annotated[str, Parameter(max_length=30, pattern=r"[a-zA-Z0-9-]+")],
     user_service: UserService,
     friend_service: FriendService,
 ) -> User:
@@ -38,9 +29,7 @@ async def get_profile(
     if user is None:
         raise PermissionDeniedException("User does not exist")
 
-    friend: Friend | None = await friend_service.get_one_or_none(
-        of_login=user.login, login=request.user.login
-    )
+    friend: Friend | None = await friend_service.get_one_or_none(of_login=user.login, login=request.user.login)
 
     f = False
     if user.is_public is True:

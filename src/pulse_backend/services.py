@@ -22,9 +22,7 @@ class CountryService(SQLAlchemyAsyncRepositoryService[Country]):
 class UserService(SQLAlchemyAsyncRepositoryService[User]):
     repository_type = UserRepository
 
-    async def to_model(
-        self: Self, data: User | dict[str, Any], operation: str | None = None
-    ) -> User:
+    async def to_model(self: Self, data: User | dict[str, Any], operation: str | None = None) -> User:
         if isinstance(data, dict):
             password = data.pop("password", None)
             if isinstance(password, str):
@@ -50,7 +48,5 @@ class SessionService(SQLAlchemyAsyncRepositoryService[Session]):
     repository_type = SessionRepository
 
     async def deactivate(self: Self, user_login: str) -> None:
-        await self.repository.session.execute(
-            delete(Session).where(Session.user_login == user_login)
-        )
+        await self.repository.session.execute(delete(Session).where(Session.user_login == user_login))
         await self.repository._flush_or_commit(auto_commit=None)  # noqa: SLF001

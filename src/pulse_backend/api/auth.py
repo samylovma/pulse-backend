@@ -55,12 +55,8 @@ class AuthController(Controller):
         user_service: UserService,
         session_service: SessionService,
     ) -> dict[str, str]:
-        user = await user_service.authentication(
-            login=data.login, password=data.password
-        )
-        session = Session(
-            exp=datetime.now(UTC) + timedelta(hours=1), user_login=user.login
-        )
+        user = await user_service.authentication(login=data.login, password=data.password)
+        session = Session(exp=datetime.now(UTC) + timedelta(hours=1), user_login=user.login)
         await session_service.create(session)
         token = sessions.auth.create_token(session)
         return {"token": token}

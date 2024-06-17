@@ -41,14 +41,10 @@ class MeController(Controller):
         country_service: CountryService,
         user_service: UserService,
     ) -> User:
-        if isinstance(data.country_code, str) and not await country_service.exists(
-            alpha2=data.country_code
-        ):
+        if isinstance(data.country_code, str) and not await country_service.exists(alpha2=data.country_code):
             raise ValidationException("Country not found")
         try:
-            return await user_service.update(
-                data.model_dump(exclude_unset=True), item_id=request.user.login
-            )
+            return await user_service.update(data.model_dump(exclude_unset=True), item_id=request.user.login)
         except IntegrityError as e:
             raise ClientException(status_code=HTTP_409_CONFLICT) from e
 

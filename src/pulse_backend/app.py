@@ -19,9 +19,7 @@ class ErrorResponse:
     reason: str
 
 
-def exc_handler(
-    _: Request[Any, Any, Any], exc: HTTPException
-) -> Response[ErrorResponse]:
+def exc_handler(_: Request[Any, Any, Any], exc: HTTPException) -> Response[ErrorResponse]:
     return Response(
         ErrorResponse(exc.detail),
         status_code=exc.status_code,

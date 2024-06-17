@@ -1,7 +1,7 @@
 from typing import Any, Self
 
 from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
-from litestar.exceptions import NotAuthorizedException
+from litestar.exceptions import NotAuthorizedException, PermissionDeniedException
 from sqlalchemy import delete
 
 from pulse_backend.crypt import check_password, hash_password
@@ -34,6 +34,12 @@ class UserService(SQLAlchemyAsyncRepositoryService[User]):
         if user is None or not check_password(password, user.hashed_password):
             raise NotAuthorizedException("Invalid login or password")
         return user
+
+    async def update_password(self: Self, user: User, old_password: str, new_password: str) -> User:
+        if not check_password(old_password, user.hashed_password):
+            raise PermissionDeniedException("Invalid password")
+        user.hashed_password = hash_password(new_password)
+        return await self.update(user)
 
 
 class FriendService(SQLAlchemyAsyncRepositoryService[Friend]):

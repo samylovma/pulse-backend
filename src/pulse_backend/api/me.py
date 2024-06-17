@@ -5,12 +5,10 @@ from litestar import Controller, Request, get, patch, post
 from litestar.di import Provide
 from litestar.exceptions import (
     ClientException,
-    PermissionDeniedException,
     ValidationException,
 )
 from litestar.status_codes import HTTP_200_OK, HTTP_409_CONFLICT
 
-from pulse_backend.crypt import check_password, hash_password
 from pulse_backend.db_models import Session, User
 from pulse_backend.dependencies import (
     provide_country_service,
@@ -56,12 +54,6 @@ class MeController(Controller):
         user_service: UserService,
         session_service: SessionService,
     ) -> dict[str, str]:
-        if not check_password(data.oldPassword, request.user.hashed_password):
-            raise PermissionDeniedException("Invalid password")
-
         await session_service.deactivate(request.user.login)
-
-        request.user.hashed_password = hash_password(data.newPassword)
-        await user_service.update(request.user)
-
+        await user_service.update_password(request.user, old_password=data.oldPassword, new_password=data.newPassword)
         return {"status": "ok"}
